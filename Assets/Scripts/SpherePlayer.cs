@@ -11,6 +11,9 @@ public class SpherePlayer : MonoBehaviour
     PlayerCamera playerCamera;
     Vector3 cameraForward;
 
+    // ジャンプ可能かどうかを管理するフラグ
+    bool canJump = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,18 +29,25 @@ public class SpherePlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-
-    }
-
-    void FixedUpdate() //物理演算関連はできるだけこちらで処理
-    {
         //Platyerカメラから進行方向を取得
         if (playerCamera != null)
         {
             cameraForward = playerCamera.GetForwardDirection();
         }
 
+        
+
+        //Spaceでジャンプ
+        if (Input.GetKeyDown(KeyCode.Space) && this.canJump)
+        {
+            rb.AddForce(Vector3.up * force, ForceMode.Impulse);
+            this.canJump = false; // ジャンプ後にフラグをリセット
+        }
+
+    }
+
+    void FixedUpdate() //物理演算関連はできるだけこちらで処理。フレームレートに依存しない処理を目指す感じかな？
+    {
         //WASDで前後左右に力を加える
         if (Input.GetKey(KeyCode.W))
         {
@@ -56,16 +66,18 @@ public class SpherePlayer : MonoBehaviour
             rb.AddForce(-Vector3.Cross(cameraForward, Vector3.up) * force);
         }
 
-        //Spaceでジャンプ
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            rb.AddForce(Vector3.up * force*10, ForceMode.Impulse);
-        }
-
         //Shiftでトルクを加える
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            rb.AddTorque(-Vector3.Cross(cameraForward, Vector3.up)*torque, ForceMode.Impulse);
+            rb.AddTorque(-Vector3.Cross(cameraForward, Vector3.up) * torque, ForceMode.Impulse);
         }
+
+    }
+
+    // オブジェクトに接触したときに呼ばれるメソッド
+    void OnCollisionEnter(Collision collision)
+    {
+        // 接触したオブジェクトが地面かどうかをチェック（タグを使用）
+        this.canJump = true; // ジャンプ可能にする
     }
 }
