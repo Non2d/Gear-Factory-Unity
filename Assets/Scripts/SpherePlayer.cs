@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SpherePlayer : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class SpherePlayer : MonoBehaviour
     // ジャンプ可能かどうかを管理するフラグ
     bool canJump = true;
 
+    Slider slider;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,24 +27,34 @@ public class SpherePlayer : MonoBehaviour
         }
         rb = this.GetComponent<Rigidbody>();
         rb.maxAngularVelocity = 100.0f;
+
+        // Sliderコンポーネントを取得
+        GameObject sliderObject = GameObject.Find("EnergyGage"); // スライダーの名前を指定
+        if (sliderObject != null)
+        {
+            slider = sliderObject.GetComponent<Slider>();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Platyerカメラから進行方向を取得
+        //Playerカメラから進行方向を取得
         if (playerCamera != null)
         {
             cameraForward = playerCamera.GetForwardDirection();
         }
-
-        
 
         //Spaceでジャンプ
         if (Input.GetKeyDown(KeyCode.Space) && this.canJump)
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             this.canJump = false; // ジャンプ後にフラグをリセット
+        }
+
+        if (slider != null)
+        {
+            slider.value = rb.velocity.magnitude; // 例として速度をスライダーに反映
         }
 
     }
