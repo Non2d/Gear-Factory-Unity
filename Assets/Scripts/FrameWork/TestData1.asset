@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bdca1cb653413448a96c02ecfde6180, type: 3}
+  m_Name: TestData1
+  m_EditorClassIdentifier: 
+  testInt: 11254124
+  testString: mario
+  testFloat: 1.5124
+  testIntList: 6f00000000000000000000000000000000000000

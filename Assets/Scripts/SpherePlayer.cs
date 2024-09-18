@@ -15,11 +15,16 @@ public class SpherePlayer : MonoBehaviour
     // ジャンプ可能かどうかを管理するフラグ
     bool canJump = true;
 
-    Slider slider;
+    Slider slider; //右下のゲージ。プレイヤーデータを表示させるため。
+
+    [SerializeField]
+    private SO_GearFactory gearFactory;
 
     // Start is called before the first frame update
     void Start()
     {
+        gearFactory.InitializePlayerLife(); //プレイヤーの残機を初期化
+        
         GameObject cameraObject = GameObject.Find("PlayerCamera"); 
         if (cameraObject != null)
         {
@@ -56,7 +61,6 @@ public class SpherePlayer : MonoBehaviour
         {
             slider.value = rb.velocity.magnitude; // 例として速度をスライダーに反映
         }
-
     }
 
     void FixedUpdate() //物理演算関連はできるだけこちらで処理。フレームレートに依存しない処理を目指す感じかな？
@@ -90,7 +94,18 @@ public class SpherePlayer : MonoBehaviour
     // オブジェクトに接触したときに呼ばれるメソッド
     void OnCollisionEnter(Collision collision)
     {
-        // 接触したオブジェクトが地面かどうかをチェック（タグを使用）
-        this.canJump = true; // ジャンプ可能にする
+        // タグで接触したオブジェクトが地面かどうかをチェック
+        if (collision.gameObject.tag == "Ground"){
+            this.canJump = true; // ジャンプ可能にする
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // タグで接触したオブジェクトがキルボリュームかどうかをチェック
+        if (other.gameObject.tag == "KillVolume")
+        {
+            gearFactory.HandlePlayerDeath(); //プレイヤーのDeath処理
+        }
     }
 }
