@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: SOI_GearFactory
   m_EditorClassIdentifier: 
   initialPlayerLife: 3
-  playerPrefab: {fileID: 5329778030062533881, guid: 321464374eaff1b48a5481ad4a9916a9, type: 3}
   respawnPoint: {fileID: 3998330555279177680, guid: 6dca12b9dcec6e44384d093941e1edcd, type: 3}
+  sceneController: {fileID: 3128612562685326804, guid: 2512be5a20e744e0dba6ccc6a9629684, type: 3}

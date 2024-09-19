@@ -19,13 +19,15 @@ public class SpherePlayer : MonoBehaviour
 
     [SerializeField]
     private SO_GearFactory gearFactory;
+    [SerializeField]
+    private SceneController Sc;
 
     // Start is called before the first frame update
     void Start()
     {
         gearFactory.InitializePlayerLife(); //プレイヤーの残機を初期化
-        
-        GameObject cameraObject = GameObject.Find("PlayerCamera"); 
+
+        GameObject cameraObject = GameObject.Find("PlayerCamera");
         if (cameraObject != null)
         {
             playerCamera = cameraObject.GetComponent<PlayerCamera>();
@@ -39,6 +41,7 @@ public class SpherePlayer : MonoBehaviour
         {
             slider = sliderObject.GetComponent<Slider>();
         }
+        
     }
 
     // Update is called once per frame
@@ -60,6 +63,12 @@ public class SpherePlayer : MonoBehaviour
         if (slider != null)
         {
             slider.value = rb.velocity.magnitude; // 例として速度をスライダーに反映
+        }
+
+        // Qキーでオプション画面を表示
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Sc.Pause();
         }
     }
 
@@ -95,7 +104,8 @@ public class SpherePlayer : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         // タグで接触したオブジェクトが地面かどうかをチェック
-        if (collision.gameObject.tag == "Ground"){
+        if (collision.gameObject.tag == "Ground")
+        {
             this.canJump = true; // ジャンプ可能にする
         }
     }

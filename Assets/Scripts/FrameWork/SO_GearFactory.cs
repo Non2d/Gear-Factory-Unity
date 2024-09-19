@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 
 [CreateAssetMenu(menuName = "SO_GearFactory")]
+//SOで扱うロジック：ボタンから直接呼ばれない、常にActiveなゲームオブジェクトのみを扱う
+//または、ここでactive/inactiveを切り替える？
 public class SO_GearFactory : ScriptableObject
 {
     public event Action OnPlayerLifeChanged;
@@ -34,11 +36,22 @@ public class SO_GearFactory : ScriptableObject
         OnPlayerLifeChanged?.Invoke();
     }
 
+    [SerializeField]
+    private GameObject sceneController;
+
     public void HandlePlayerDeath()
     {
         if (_playerLife <= 0)
         {
-            //game over
+            SceneController sc = sceneController.GetComponent<SceneController>();
+            if (sc != null)
+            {
+                sc.ShowGameOverMenu();
+            }
+            else
+            {
+                Debug.LogError("SceneController component not found on sceneController GameObject.");
+            }
         }
         else
         {
