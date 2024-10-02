@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ae1bc70fefe7754297f53e2d4bd89a8, type: 3}
   m_Name: SOI_GearFactory
   m_EditorClassIdentifier: 
-  initialPlayerLife: 3
-  respawnPoint: {fileID: 3998330555279177680, guid: 6dca12b9dcec6e44384d093941e1edcd, type: 3}
-  sceneController: {fileID: 3128612562685326804, guid: 2512be5a20e744e0dba6ccc6a9629684, type: 3}
+  initPlayerLife: 3
+  initPlayerSpawner: {fileID: 5854568400081541957, guid: e4014a1859e30c841ae1bf884f14203d, type: 3}
+  initPlayerEnergy: 1000
+  PlayerEnergyMax: 1000
+  playerLife: 3
+  playerSpawnPosition: {x: -36, y: 9, z: 11}
+  playerSpawnRotation: {x: 0, y: 0, z: 0, w: 1}
+  playerEnergy: -69.19857

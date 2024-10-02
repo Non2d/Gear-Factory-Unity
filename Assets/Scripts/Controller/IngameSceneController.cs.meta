@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c25f2c8c5f5cfe741a513a76a93e4a1f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - gearFactory: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
+  - menu: {instanceID: 0}
+  - gameOverMenu: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
