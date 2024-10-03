@@ -10,6 +10,9 @@ public class SpherePlayer : MonoBehaviour
     float force = 100.0f;
     float torque = 10.0f;
 
+    private bool isFadingOut = false;
+    private float fadeOutSpeed = 0.1f; // フェードアウトの速度 param
+
     [SerializeField]
     private PlayerCamera playerCamera;
     Vector3 cameraForward;
@@ -20,8 +23,13 @@ public class SpherePlayer : MonoBehaviour
     [SerializeField]
     private IngameSceneController sc;
 
-    [SerializeField]
     private ParticleSystem ps;
+
+    [SerializeField]
+    private AudioSource fireAudio;
+
+    [SerializeField]
+    private AudioClip fireClip;
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +37,18 @@ public class SpherePlayer : MonoBehaviour
         rb = GetComponent<Rigidbody>(); //this.は省略可能
         rb.maxAngularVelocity = 100.0f;
 
-        ps = GetComponentInChildren<ParticleSystem>();
+        if (ps == null) // インスペクタで保存し忘れているときのための保険
+        {
+            ps = GetComponentInChildren<ParticleSystem>();
+        }
+
+        if (fireAudio != null)
+        {
+            fireAudio.loop = true;
+            fireAudio.clip = fireClip;
+            fireAudio.mute = false;
+            fireAudio.volume = 0.1f; //param
+        }
     }
 
     // Update is called once per frame
@@ -54,13 +73,19 @@ public class SpherePlayer : MonoBehaviour
             sc.Pause();
         }
 
-        // テスト：Eキーでパーティクルのエミッションレートを変更
+        // Eキーでパーティクルと音声を制御
         if (Input.GetKey(KeyCode.E))
         {
             if (!ps.isPlaying) // パーティクルが再生されていないなら
             {
                 ps.Play(); // 再生開始
             }
+            if (!fireAudio.isPlaying) // 音声が再生されていないなら
+            {
+                fireAudio.Play(); // 音声再生開始
+            }
+            fireAudio.volume = 0.1f; // 音量を最大に設定
+            isFadingOut = false; // フェードアウトを停止
         }
         else
         {
@@ -68,34 +93,59 @@ public class SpherePlayer : MonoBehaviour
             {
                 ps.Stop(); // 再生停止
             }
+            if (fireAudio.isPlaying && !isFadingOut) // 音声が再生されているなら
+            {
+                isFadingOut = true; // フェードアウトを開始
+            }
+        }
+
+        // フェードアウト処理
+        if (isFadingOut)
+        {
+            fireAudio.volume -= fadeOutSpeed * Time.deltaTime;
+            if (fireAudio.volume <= 0)
+            {
+                fireAudio.Stop(); // 音量が0になったら停止
+                fireAudio.volume = 0; // 音量を0に設定
+                isFadingOut = false; // フェードアウトを停止
+            }
         }
     }
 
     void FixedUpdate() //物理演算関連はできるだけこちらで処理。フレームレートに依存しない処理を目指す感じかな？
     {
-        //WASDで前後左右に力を加える
+        Vector3 playerForward = Vector3.zero;
+
+        // WASDキーで方向を決定
         if (Input.GetKey(KeyCode.W))
         {
-            rb.AddForce(force * cameraForward);
+            playerForward += cameraForward;
             sc.GivePlayerDamage(1);
         }
         if (Input.GetKey(KeyCode.S))
         {
-            rb.AddForce(-force * cameraForward);
+            playerForward -= cameraForward;
         }
         if (Input.GetKey(KeyCode.A))
         {
-            rb.AddForce(Vector3.Cross(cameraForward, Vector3.up) * force);
+            playerForward += Vector3.Cross(cameraForward, Vector3.up);
         }
         if (Input.GetKey(KeyCode.D))
         {
-            rb.AddForce(-Vector3.Cross(cameraForward, Vector3.up) * force);
+            playerForward -= Vector3.Cross(cameraForward, Vector3.up);
+        }
+
+        // 決定した方向に力を加える
+        if (playerForward != Vector3.zero)
+        {
+            rb.AddForce(playerForward.normalized * force);
         }
 
         //Shiftでトルクを加える
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            rb.AddTorque(-Vector3.Cross(cameraForward, Vector3.up) * torque, ForceMode.Impulse);
+            Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
+            rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
         }
     }
 
@@ -123,12 +173,12 @@ public class SpherePlayer : MonoBehaviour
         // パーティクルのエミッションレートを変更
         var emission = ps.emission;
 
-        if(ps==null)
+        if (ps == null)
         {
             Debug.LogError("Emission module not found!");
             return;
         }
 
-        emission.rateOverTime = new ParticleSystem.MinMaxCurve(rate);  // rateを設定。直接数値の代入はできないらしい
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(rate); // rateを設定。直接数値の代入はできないらしい
     }
 }
