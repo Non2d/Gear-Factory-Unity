@@ -20,11 +20,16 @@ public class SpherePlayer : MonoBehaviour
     [SerializeField]
     private IngameSceneController sc;
 
+    [SerializeField]
+    private ParticleSystem ps;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>(); //this.は省略可能
         rb.maxAngularVelocity = 100.0f;
+
+        ps = GetComponentInChildren<ParticleSystem>();
     }
 
     // Update is called once per frame
@@ -47,6 +52,22 @@ public class SpherePlayer : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             sc.Pause();
+        }
+
+        // テスト：Eキーでパーティクルのエミッションレートを変更
+        if (Input.GetKey(KeyCode.E))
+        {
+            if (!ps.isPlaying) // パーティクルが再生されていないなら
+            {
+                ps.Play(); // 再生開始
+            }
+        }
+        else
+        {
+            if (ps.isPlaying) // パーティクルが再生されているなら
+            {
+                ps.Stop(); // 再生停止
+            }
         }
     }
 
@@ -95,5 +116,19 @@ public class SpherePlayer : MonoBehaviour
         {
             sc.HandlePlayerDeath(); //プレイヤーのDeath処理
         }
+    }
+
+    void ChangeEmissionRate(float rate)
+    {
+        // パーティクルのエミッションレートを変更
+        var emission = ps.emission;
+
+        if(ps==null)
+        {
+            Debug.LogError("Emission module not found!");
+            return;
+        }
+
+        emission.rateOverTime = new ParticleSystem.MinMaxCurve(rate);  // rateを設定。直接数値の代入はできないらしい
     }
 }
