@@ -19,4 +19,4 @@ MonoBehaviour:
   playerLife: 3
   playerSpawnPosition: {x: -36, y: 9, z: 11}
   playerSpawnRotation: {x: 0, y: 0, z: 0, w: 1}
-  playerEnergy: -69.19857
+  playerEnergy: 1000

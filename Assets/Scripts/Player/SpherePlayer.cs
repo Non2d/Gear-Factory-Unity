@@ -65,6 +65,7 @@ public class SpherePlayer : MonoBehaviour
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット
+            sc.GivePlayerDamage(30.0f); //param
         }
 
         // Qキーでオプション画面を表示
@@ -73,8 +74,8 @@ public class SpherePlayer : MonoBehaviour
             sc.Pause();
         }
 
-        // Eキーでパーティクルと音声を制御
-        if (Input.GetKey(KeyCode.E))
+        //
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
         {
             if (!ps.isPlaying) // パーティクルが再生されていないなら
             {
@@ -84,7 +85,7 @@ public class SpherePlayer : MonoBehaviour
             {
                 fireAudio.Play(); // 音声再生開始
             }
-            fireAudio.volume = 0.1f; // 音量を最大に設定
+            fireAudio.volume = 0.1f; // 音量を最大に設定 param
             isFadingOut = false; // フェードアウトを停止
         }
         else
@@ -120,7 +121,6 @@ public class SpherePlayer : MonoBehaviour
         if (Input.GetKey(KeyCode.W))
         {
             playerForward += cameraForward;
-            sc.GivePlayerDamage(1);
         }
         if (Input.GetKey(KeyCode.S))
         {
@@ -139,6 +139,7 @@ public class SpherePlayer : MonoBehaviour
         if (playerForward != Vector3.zero)
         {
             rb.AddForce(playerForward.normalized * force);
+            sc.GivePlayerDamage(0.5f);
         }
 
         //Shiftでトルクを加える
@@ -146,6 +147,7 @@ public class SpherePlayer : MonoBehaviour
         {
             Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
+            sc.GivePlayerDamage(1.0f); //param
         }
     }
 

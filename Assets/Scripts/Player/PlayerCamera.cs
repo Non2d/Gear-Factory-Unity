@@ -39,7 +39,7 @@ public class PlayerCamera : MonoBehaviour
 
             // Calculate new camera position
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
-            Vector3 newPosition = this.player.transform.position + rotation * offset;
+            Vector3 newPosition = this.player.transform.position + rotation * offset*2;
 
             // Update camera position and rotation
             transform.position = newPosition;
