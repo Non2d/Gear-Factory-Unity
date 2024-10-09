@@ -28,6 +28,9 @@ public class IngameSceneController : BaseSceneController
     [SerializeField]
     private GameObject gameOverMenu;
 
+    [SerializeField]
+    private GameObject SpawnPoint;
+
     // events
     public event Action OnPlayerLifeChanged;
 
@@ -160,8 +163,11 @@ public class IngameSceneController : BaseSceneController
         player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         gearFactory.playerEnergy = gearFactory.PlayerEnergyMax;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
+
         //Respawn
-        player.transform.position = gearFactory.playerSpawnPosition;
-        player.transform.rotation = gearFactory.playerSpawnRotation;
+        Vector3 playerSpawnPosition = SpawnPoint.transform.position;
+        Quaternion playerSpawnRotation = SpawnPoint.transform.rotation;
+        player.transform.position = playerSpawnPosition;
+        player.transform.rotation = playerSpawnRotation;
     }
 }

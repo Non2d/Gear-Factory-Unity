@@ -6,9 +6,13 @@ public class PlayerCamera : MonoBehaviour
 {
     private GameObject player;
     private Vector3 offset;
-    public float mouseSensitivity = 100.0f;
+    public float mouseSensitivity;
     private float pitch = 30.0f;
     private float yaw = 0.0f;
+    public float zoomSpeed; // マウスホイールのズーム速度
+    public float minZoom; // 最小ズーム距離
+    public float maxZoom; // 最大ズーム距離
+    public float defaultZoom; // デフォルトズーム距離
 
     // Start is called before the first frame update
     void Start()
@@ -20,6 +24,7 @@ public class PlayerCamera : MonoBehaviour
             return;
         }
         offset = transform.position - this.player.transform.position;
+        offset = offset.normalized * defaultZoom; // デフォルトのズーム距離を15に設定
         Cursor.lockState = CursorLockMode.Locked; // Lock the cursor to the center of the screen
     }
 
@@ -37,9 +42,16 @@ public class PlayerCamera : MonoBehaviour
             pitch -= mouseY;
             pitch = Mathf.Clamp(pitch, -90f, 90f); // Limit pitch to avoid flipping
 
+            // Get mouse scroll input for zoom
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            float distance = offset.magnitude;
+            distance -= scroll * zoomSpeed;
+            distance = Mathf.Clamp(distance, minZoom, maxZoom);
+            offset = offset.normalized * distance;
+
             // Calculate new camera position
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
-            Vector3 newPosition = this.player.transform.position + rotation * offset*2;
+            Vector3 newPosition = this.player.transform.position + rotation * offset;
 
             // Update camera position and rotation
             transform.position = newPosition;
