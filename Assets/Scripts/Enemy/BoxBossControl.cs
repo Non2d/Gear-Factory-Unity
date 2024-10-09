@@ -28,8 +28,6 @@ public class BoxBossControl : MonoBehaviour
 
         // キャラモデルのAnimatorコンポーネントとanimatorを関連付ける
         animator = this.gameObject.transform.GetChild(0).GetComponent<Animator>();
-
-        SetState(EnemyState.Idle); // 初期状態をIdle状態に設定する
     }
 
     void Update()
@@ -65,19 +63,19 @@ public class BoxBossControl : MonoBehaviour
         if (tempState == EnemyState.Idle)
         {
             navMeshAgent.isStopped = true; // キャラの移動を止める
-            animator.SetBool("chase", false); // アニメーションコントローラーのフラグ切替（Chase⇒IdleもしくはFreeze⇒Idle）
+            animator.SetBool("Chase", false); // アニメーションコントローラーのフラグ切替（Chase⇒IdleもしくはFreeze⇒Idle）
         }
         else if (tempState == EnemyState.Chase)
         {
             targetTransform = targetObject; // ターゲットの情報を更新
             navMeshAgent.SetDestination(targetTransform.position); // 目的地をターゲットの位置に設定
             navMeshAgent.isStopped = false; // キャラを動けるようにする
-            animator.SetBool("chase", true); // アニメーションコントローラーのフラグ切替（Idle⇒Chase）
+            animator.SetBool("Chase", true); // アニメーションコントローラーのフラグ切替（Idle⇒Chase）
         }
         else if (tempState == EnemyState.Attack)
         {
             navMeshAgent.isStopped = true; // キャラの移動を止める
-            animator.SetBool("chase", false);
+            animator.SetBool("Chase", false);
             timeline.Play(); // 攻撃用のタイムラインを再生する
         }
         else if (tempState == EnemyState.Freeze)
