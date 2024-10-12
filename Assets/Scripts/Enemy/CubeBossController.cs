@@ -9,8 +9,7 @@ public class CubeBossController : MonoBehaviour
     {
         Idle,
         Chase,
-        Attack,
-        Freeze
+        Attack
     };
 
     public EnemyState state;
@@ -19,12 +18,15 @@ public class CubeBossController : MonoBehaviour
     private NavMeshAgent agent;
     [SerializeField]
     private GameObject player;
+
+    private Animator animator;
     
 
     void Start()
     {
         state = EnemyState.Idle;
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -44,9 +46,6 @@ public class CubeBossController : MonoBehaviour
 
             case EnemyState.Attack:
                 break;
-
-            case EnemyState.Freeze:
-                break;
         }
     }
 
@@ -59,6 +58,7 @@ public class CubeBossController : MonoBehaviour
             case EnemyState.Idle:
                 Debug.Log("Idle");
                 agent.isStopped = true;
+                animator.SetBool("IsAttacking", false);
                 break;
 
             case EnemyState.Chase:
@@ -78,10 +78,7 @@ public class CubeBossController : MonoBehaviour
 
             case EnemyState.Attack:
                 Debug.Log("Attack");
-                break;
-
-            case EnemyState.Freeze:
-                Debug.Log("Freeze");
+                animator.SetBool("IsAttacking", true);
                 break;
         }
     }
@@ -97,9 +94,6 @@ public class CubeBossController : MonoBehaviour
         } else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             SetState(EnemyState.Attack);
-        } else if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            SetState(EnemyState.Freeze);
         }
     }
 

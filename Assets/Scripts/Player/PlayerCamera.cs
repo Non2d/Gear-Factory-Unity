@@ -40,7 +40,7 @@ public class PlayerCamera : MonoBehaviour
             // Update yaw and pitch
             yaw += mouseX;
             pitch -= mouseY;
-            pitch = Mathf.Clamp(pitch, -90f, 90f); // Limit pitch to avoid flipping
+            pitch = Mathf.Clamp(pitch, -25f, 60f); // param。普通のステージでは-25~60, 宇宙ステージでは
 
             // Get mouse scroll input for zoom
             float scroll = Input.GetAxis("Mouse ScrollWheel");
