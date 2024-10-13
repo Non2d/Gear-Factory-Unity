@@ -36,6 +36,9 @@ public class SpherePlayer : MonoBehaviour
     private GameObject SpeedLines;
     private ParticleSystem speedLinesPS;
 
+    private float currentFov;
+    private float fovVelocity;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -59,7 +62,7 @@ public class SpherePlayer : MonoBehaviour
 
         // SpeedLinesのParticle Systemを取得
         speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
-
+        currentFov = playerCamera.GetFov();
     }
 
     private Vector3 previousVelocity = Vector3.zero;
@@ -154,13 +157,13 @@ public class SpherePlayer : MonoBehaviour
         emission.rateOverTime = newRateOverTime; // 動的に計算されたRate Over Timeを設定
 
         // Fovの制御
-
         float baseFov = 60.0f;
         float maxFov = 85.0f;
-        float newFov = Mathf.Clamp(baseFov + (forwardSpeed > 50 ? (forwardSpeed - 50) / 1 : 0), baseFov, maxFov);
+        float targetFov = Mathf.Clamp(baseFov + (forwardSpeed > 50 ? 2*(forwardSpeed - 50) : 0), baseFov, maxFov);
 
-        Debug.Log(forwardSpeed);
-        playerCamera.SetFov(newFov);
+        // Fovを滑らかに変更
+        currentFov = Mathf.SmoothDamp(currentFov, targetFov, ref fovVelocity, 0.1f);
+        playerCamera.SetFov(currentFov);
     }
 
 

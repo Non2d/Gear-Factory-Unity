@@ -43,7 +43,7 @@ public class PlayerCamera : MonoBehaviour
             // Update yaw and pitch
             yaw += mouseX;
             pitch -= mouseY;
-            pitch = Mathf.Clamp(pitch, -25f, 60f); // param。普通のステージでは-25~60, 宇宙ステージでは
+            pitch = Mathf.Clamp(pitch, -60f, 60f); // param。普通のステージでは-25~60, 宇宙ステージでは
 
             // Get mouse scroll input for zoom
             float scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -76,6 +76,11 @@ public class PlayerCamera : MonoBehaviour
     public Vector3 GetForwardDirection()
     {
         return transform.forward;
+    }
+
+    public float GetFov()
+    {
+        return Camera.main.fieldOfView;
     }
 
     public void SetFov(float fov)
