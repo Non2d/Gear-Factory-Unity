@@ -77,4 +77,9 @@ public class PlayerCamera : MonoBehaviour
     {
         return transform.forward;
     }
+
+    public void SetFov(float fov)
+    {
+        Camera.main.fieldOfView = fov;
+    }
 }

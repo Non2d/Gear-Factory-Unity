@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -123,7 +124,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // SpeedLinesパーティクルシステムの制御
-        ControlSpeedLines();
+        ControlSpeedLinesAndFov();
 
         LastUpdate();
     }
@@ -133,29 +134,33 @@ public class SpherePlayer : MonoBehaviour
         previousVelocity = rb.velocity;
     }
 
-    void ControlSpeedLines()
+    void ControlSpeedLinesAndFov()
     {
         // cameraForward方向への速度成分を計算
         float forwardSpeed = Vector3.Dot(rb.velocity, cameraForward);
 
-        // 速度が5以下の場合は0に設定
+        // Speed Linesの制御
         float filteredForwardSpeed = forwardSpeed > 5 ? forwardSpeed : 0;
 
-        // 基準となる速度と割合を設定
-        float baseSpeed = 10.0f; // 基準となる速度
-        float baseStartSpeed = 10.0f; // 基準となるStart Speed
-        float baseRateOverTime = 50.0f; // 基準となるRate Over Time
-
-        // 現在の速度に応じてStart SpeedとRate Over Timeを計算
+        float baseSpeed = 10.0f;
+        float baseStartSpeed = 10.0f;
+        float baseRateOverTime = 50.0f;
         float newStartSpeed = baseStartSpeed * (filteredForwardSpeed / baseSpeed);
         float newRateOverTime = baseRateOverTime * (filteredForwardSpeed / baseSpeed);
 
-        // ParticleSystemのStart SpeedとEmissionのRate Over Timeを設定
         var main = speedLinesPS.main;
         main.startSpeed = newStartSpeed; // 動的に計算されたStart Speedを設定
-
         var emission = speedLinesPS.emission;
         emission.rateOverTime = newRateOverTime; // 動的に計算されたRate Over Timeを設定
+
+        // Fovの制御
+
+        float baseFov = 60.0f;
+        float maxFov = 85.0f;
+        float newFov = Mathf.Clamp(baseFov + (forwardSpeed > 50 ? (forwardSpeed - 50) / 1 : 0), baseFov, maxFov);
+
+        Debug.Log(forwardSpeed);
+        playerCamera.SetFov(newFov);
     }
 
 
@@ -197,7 +202,7 @@ public class SpherePlayer : MonoBehaviour
             sc.GivePlayerDamage(1.0f); //param
         }
 
-
+        ApplyDragForce();
     }
 
     // オブジェクトに接触したときに呼ばれるメソッド
@@ -207,9 +212,12 @@ public class SpherePlayer : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
             canJump = true; // ジャンプ可能にする
+        } else if (collision.gameObject.tag == "Boss")
+        {
+
         }
 
-        Bound(collision);
+        ApplyBoundForce(collision);
     }
 
     //跳ね返り処理
@@ -217,7 +225,7 @@ public class SpherePlayer : MonoBehaviour
     private float fixedE;
     private readonly float fixedEDeno = 0.959f; //param
 
-    void Bound(Collision collision)
+    void ApplyBoundForce(Collision collision)
     {
         fixedE = e / fixedEDeno; //param
         if (collision.gameObject.tag == "Ground")
@@ -245,6 +253,14 @@ public class SpherePlayer : MonoBehaviour
             // 反射ベクトルに基づいて力を加える
             rb.AddForce(fixedE * finalComponent * rb.mass, ForceMode.Impulse);
         }
+    }
+
+    // 空気抵抗をシミュレート
+    void ApplyDragForce()
+    {
+        float kDrag = 0.5f; //param
+        Vector3 dragForce = -kDrag * rb.velocity; //param
+        rb.AddForce(dragForce);
     }
 
     void OnTriggerEnter(Collider other)
