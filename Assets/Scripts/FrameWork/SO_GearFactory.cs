@@ -18,6 +18,9 @@ public class SO_GearFactory : ScriptableObject
     public int playerLife;
     public float playerEnergy;
 
+    public string AnimStateChase = "CB_Chase";
+    public string AnimConditionAttack = "IsAttacking";
+
     public void Initialize()
     {
         playerLife = initPlayerLife;

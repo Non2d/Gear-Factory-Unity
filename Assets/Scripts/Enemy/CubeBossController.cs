@@ -20,7 +20,9 @@ public class CubeBossController : MonoBehaviour
     private GameObject player;
 
     private Animator animator;
-    
+
+    [SerializeField]
+    private SO_GearFactory gf;
 
     void Start()
     {
@@ -57,8 +59,7 @@ public class CubeBossController : MonoBehaviour
         {
             case EnemyState.Idle:
                 Debug.Log("Idle");
-                agent.isStopped = true;
-                animator.SetBool("IsAttacking", false);
+                animator.SetBool(gf.AnimConditionAttack, false);
                 break;
 
             case EnemyState.Chase:
@@ -70,15 +71,15 @@ public class CubeBossController : MonoBehaviour
                 }
                 else
                 {
+                    animator.CrossFadeInFixedTime(gf.AnimStateChase, 0.25f);
                     targetTransform = targetObject.transform;
                     agent.SetDestination(targetTransform.position);
-                    agent.isStopped = false;
                 }
                 break;
 
             case EnemyState.Attack:
                 Debug.Log("Attack");
-                animator.SetBool("IsAttacking", true);
+                animator.SetBool(gf.AnimConditionAttack, true);
                 break;
         }
     }

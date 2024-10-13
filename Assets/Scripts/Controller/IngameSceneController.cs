@@ -13,7 +13,7 @@ public class IngameSceneController : BaseSceneController
 
     //Scriptable Objectの読み込み
     [SerializeField]
-    private SO_GearFactory gearFactory;
+    private SO_GearFactory gf;
 
     // Gaugeの読み込み
     [SerializeField]
@@ -47,7 +47,7 @@ public class IngameSceneController : BaseSceneController
     public void Start() //原則：直接Sceneを開いても、タイトル画面のPlayボタン経由でも、全く同じ挙動になること！...と思ったけど、最初からと続きからでは異なるか。Playはとりあえず「最初から」という扱いで。
     {
         //初期化
-        gearFactory.Initialize();//プレイヤーのステータス等を初期化
+        gf.Initialize();//プレイヤーのステータス等を初期化
         RespawnPlayer();
 
         Time.timeScale = 1; //明示的に初期化しないと遷移後動かないことも
@@ -109,7 +109,7 @@ public class IngameSceneController : BaseSceneController
 
     public void RestartGame()
     {
-        gearFactory.Initialize();//プレイヤーのステータス等を初期化
+        gf.Initialize();//プレイヤーのステータス等を初期化
         RespawnPlayer();
 
         OnPlayerLifeChanged?.Invoke(); //プレイヤー残機の初期化をUIに反映
@@ -126,10 +126,10 @@ public class IngameSceneController : BaseSceneController
     //Player制御ロジック
     public void GivePlayerDamage(float damage)
     {
-        gearFactory.playerEnergy -= damage;
+        gf.playerEnergy -= damage;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
 
-        if (gearFactory.playerEnergy <= 0)
+        if (gf.playerEnergy <= 0)
         {
             HandlePlayerDeath();
         }
@@ -137,7 +137,7 @@ public class IngameSceneController : BaseSceneController
 
     public void HandlePlayerDeath()
     {
-        if (gearFactory.playerLife <= 0)
+        if (gf.playerLife <= 0)
         {
             if (sc != null)
             {
@@ -150,7 +150,7 @@ public class IngameSceneController : BaseSceneController
         }
         else
         {
-            gearFactory.playerLife--;
+            gf.playerLife--;
             OnPlayerLifeChanged?.Invoke();
             RespawnPlayer();
         }
@@ -161,7 +161,7 @@ public class IngameSceneController : BaseSceneController
         //Reset status
         player.GetComponent<Rigidbody>().velocity = Vector3.zero;
         player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        gearFactory.playerEnergy = gearFactory.PlayerEnergyMax;
+        gf.playerEnergy = gf.PlayerEnergyMax;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
 
         //Respawn
