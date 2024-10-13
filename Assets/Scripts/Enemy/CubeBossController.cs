@@ -102,4 +102,8 @@ public class CubeBossController : MonoBehaviour
     {
         return state;
     }
+
+    public void Test(string str){
+        Debug.Log(str);
+    }
 }

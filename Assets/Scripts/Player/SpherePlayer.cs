@@ -31,11 +31,17 @@ public class SpherePlayer : MonoBehaviour
     [SerializeField]
     private AudioClip fireClip;
 
+    [SerializeField]
+    private GameObject SpeedLines;
+    private ParticleSystem speedLinesPS;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>(); //this.は省略可能
         rb.maxAngularVelocity = 100.0f;
+
+        speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
 
         if (ps == null) // インスペクタで保存し忘れているときのための保険
         {
@@ -49,9 +55,13 @@ public class SpherePlayer : MonoBehaviour
             fireAudio.mute = false;
             fireAudio.volume = 0.1f; //param
         }
+
+        // SpeedLinesのParticle Systemを取得
+        speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
+
     }
 
-    // Update is called once per frame
+    private Vector3 previousVelocity = Vector3.zero;
     void Update()
     {
         //Playerカメラから進行方向を取得
@@ -111,12 +121,49 @@ public class SpherePlayer : MonoBehaviour
                 isFadingOut = false; // フェードアウトを停止
             }
         }
+
+        // SpeedLinesパーティクルシステムの制御
+        ControlSpeedLines();
+
+        LastUpdate();
     }
+
+    void LastUpdate()
+    {
+        previousVelocity = rb.velocity;
+    }
+
+    void ControlSpeedLines()
+    {
+        // cameraForward方向への速度成分を計算
+        float forwardSpeed = Vector3.Dot(rb.velocity, cameraForward);
+
+        // 速度が5以下の場合は0に設定
+        float filteredForwardSpeed = forwardSpeed > 5 ? forwardSpeed : 0;
+
+        // 基準となる速度と割合を設定
+        float baseSpeed = 10.0f; // 基準となる速度
+        float baseStartSpeed = 10.0f; // 基準となるStart Speed
+        float baseRateOverTime = 50.0f; // 基準となるRate Over Time
+
+        // 現在の速度に応じてStart SpeedとRate Over Timeを計算
+        float newStartSpeed = baseStartSpeed * (filteredForwardSpeed / baseSpeed);
+        float newRateOverTime = baseRateOverTime * (filteredForwardSpeed / baseSpeed);
+
+        // ParticleSystemのStart SpeedとEmissionのRate Over Timeを設定
+        var main = speedLinesPS.main;
+        main.startSpeed = newStartSpeed; // 動的に計算されたStart Speedを設定
+
+        var emission = speedLinesPS.emission;
+        emission.rateOverTime = newRateOverTime; // 動的に計算されたRate Over Timeを設定
+    }
+
+
+    private Vector3 playerForward;
 
     void FixedUpdate() //物理演算関連はできるだけこちらで処理。フレームレートに依存しない処理を目指す感じかな？
     {
-        Vector3 playerForward = Vector3.zero;
-
+        playerForward = Vector3.zero;
         // WASDキーで方向を決定
         if (Input.GetKey(KeyCode.W))
         {
@@ -149,6 +196,8 @@ public class SpherePlayer : MonoBehaviour
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
             sc.GivePlayerDamage(1.0f); //param
         }
+
+
     }
 
     // オブジェクトに接触したときに呼ばれるメソッド
@@ -158,6 +207,43 @@ public class SpherePlayer : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
             canJump = true; // ジャンプ可能にする
+        }
+
+        Bound(collision);
+    }
+
+    //跳ね返り処理
+    public float e; //param
+    private float fixedE;
+    private readonly float fixedEDeno = 0.959f; //param
+
+    void Bound(Collision collision)
+    {
+        fixedE = e / fixedEDeno; //param
+        if (collision.gameObject.tag == "Ground")
+        {
+            Vector3 normal = collision.contacts[0].normal;
+            Vector3 reflect = Vector3.Reflect(previousVelocity, normal);
+
+            // 法線方向の成分
+            Vector3 normalComponent = Vector3.Project(reflect, normal);
+
+            // 接面＝法線の垂直方向の成分。接面=tangent.
+            Vector3 tangentComponent = Vector3.zero;
+
+            // // 角度が30度以上の場合に垂直方向の成分を追加
+            // float angle = Vector3.Angle(normal, Vector3.up);
+            // if (angle >= 30.0f)
+            // {
+            //     float eTangent = 0.9f; //param
+            //     tangentComponent = eTangent*(reflect - normalComponent); // 垂直方向の成分を少しだけ追加
+            // }
+
+            // 法線方向と垂直方向の成分を足し合わせる
+            Vector3 finalComponent = normalComponent + tangentComponent;
+
+            // 反射ベクトルに基づいて力を加える
+            rb.AddForce(fixedE * finalComponent * rb.mass, ForceMode.Impulse);
         }
     }
 
@@ -172,7 +258,7 @@ public class SpherePlayer : MonoBehaviour
 
     void ChangeEmissionRate(float rate)
     {
-        // パーティクルのエミッションレートを変更
+        // パーティクルのエミッションレートを変更。e.g., プレイヤーの燃え具合を制御
         var emission = ps.emission;
 
         if (ps == null)
