@@ -52,6 +52,8 @@ public class SpherePlayer : MonoBehaviour
             ps = GetComponentInChildren<ParticleSystem>();
         }
 
+        Debug.Log(ps);
+
         if (fireAudio != null)
         {
             fireAudio.loop = true;
