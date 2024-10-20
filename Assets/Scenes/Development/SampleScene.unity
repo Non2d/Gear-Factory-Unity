@@ -5413,6 +5413,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 1000
+  zoomSpeed: 0
+  minZoom: 0
+  maxZoom: 0
+  defaultZoom: 0
 --- !u!1 &995253634 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1917814978799837117, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
