@@ -9,9 +9,6 @@ public class GearControl : MonoBehaviour
 
     private List<TextMeshPro> textComponents = new List<TextMeshPro>();
 
-    [SerializeField]
-    private GameObject test_player;
-
     private int divisions; //param
     private float originAngle; //param
 
@@ -55,13 +52,13 @@ public class GearControl : MonoBehaviour
         // Debug.Log(GetLocalDirectionToPlayer());
     }
 
-    float GetLocalDirectionToPlayer()
+    float GetLocalDirectionToPlayer(GameObject player)
     {
         // 現在のオブジェクトの位置を基準とする
         Vector3 currentPosition = transform.position;
 
         // test_playerの位置を取得
-        Vector3 playerPosition = test_player.transform.position;
+        Vector3 playerPosition = player.transform.position;
 
         // 方向ベクトルを計算
         Vector3 direction = playerPosition - currentPosition;
@@ -94,11 +91,9 @@ public class GearControl : MonoBehaviour
         return pocketNumber;
     }
 
-
-    public void OnPlayerEnterChildTrigger()
+    public void OnPlayerEnterChildTrigger(Collider other) //TagがPlayerのとき、ChildTriggerHandlerから呼び出される
     {
-        Debug.Log(GetLocalDirectionToPlayer());
-        Debug.Log(GetPocketLanded(GetLocalDirectionToPlayer()));
-
+        Debug.Log(GetLocalDirectionToPlayer(other.gameObject));
+        Debug.Log(GetPocketLanded(GetLocalDirectionToPlayer(other.gameObject)));
     }
 }
