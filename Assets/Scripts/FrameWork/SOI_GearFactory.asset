@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: SOI_GearFactory
   m_EditorClassIdentifier: 
   initPlayerLife: 3
-  initPlayerSpawner: {fileID: 5854568400081541957, guid: e4014a1859e30c841ae1bf884f14203d, type: 3}
-  initPlayerEnergy: 1000
+  initPlayerEnergy: 100
   PlayerEnergyMax: 1000
-  playerLife: 3
-  playerSpawnPosition: {x: -36, y: 9, z: 11}
-  playerSpawnRotation: {x: 0, y: 0, z: 0, w: 1}
-  playerEnergy: 1000
+  playerLife: 2
+  playerEnergy: -26
+  AnimStateChase: CB_Chase
+  AnimConditionAttack: IsAttacking

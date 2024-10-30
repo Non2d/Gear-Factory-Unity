@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class SpherePlayer : MonoBehaviour
 {
@@ -39,9 +41,20 @@ public class SpherePlayer : MonoBehaviour
     private float currentFov;
     private float fovVelocity;
 
+    private bool isGambleMode = false;
+    
+    private Vector3 previousDirection;
+
     // Start is called before the first frame update
     void Start()
     {
+        // ギャンブルシーン判定
+        string[] sceneNames = {"Level0102"};
+        if (sceneNames.Contains(SceneManager.GetActiveScene().name))
+        {
+            isGambleMode = true;
+        }
+        
         rb = GetComponent<Rigidbody>(); //this.は省略可能
         rb.maxAngularVelocity = 100.0f;
 
@@ -65,11 +78,15 @@ public class SpherePlayer : MonoBehaviour
         // SpeedLinesのParticle Systemを取得
         speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
         currentFov = playerCamera.GetFov();
+
+        previousDirection = Vector3.zero;
     }
 
     private Vector3 previousVelocity = Vector3.zero;
     void Update()
     {
+        // Debug.Log(LatestVelocityDirection());
+
         //Playerカメラから進行方向を取得
         if (playerCamera != null)
         {
@@ -90,7 +107,7 @@ public class SpherePlayer : MonoBehaviour
             sc.Pause();
         }
 
-        //
+        //後で，ダメージを受けてる時にパーティクルを出すように変更
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
         {
             if (!ps.isPlaying) // パーティクルが再生されていないなら
@@ -193,14 +210,14 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // 決定した方向に力を加える
-        if (playerForward != Vector3.zero)
+        if (!isGambleMode&&playerForward != Vector3.zero)
         {
             rb.AddForce(playerForward.normalized * force);
             sc.GivePlayerDamage(0.5f);
         }
 
         //Shiftでトルクを加える
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (!isGambleMode&&Input.GetKey(KeyCode.LeftShift))
         {
             Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
@@ -208,6 +225,18 @@ public class SpherePlayer : MonoBehaviour
         }
 
         ApplyDragForce();
+    }
+
+    Vector3 LatestVelocityDirection()
+    {
+        Vector3 direction = rb.velocity.normalized;
+        if (direction == Vector3.zero)
+        {
+            direction = previousDirection;
+        } else {
+            previousDirection = direction;
+        }
+        return direction;
     }
 
     // オブジェクトに接触したときに呼ばれるメソッド
@@ -219,7 +248,7 @@ public class SpherePlayer : MonoBehaviour
             canJump = true; // ジャンプ可能にする
         } else if (collision.gameObject.tag == "Boss")
         {
-
+            canJump = true;
         }
 
         ApplyBoundForce(collision);

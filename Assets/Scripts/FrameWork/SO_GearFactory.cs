@@ -6,11 +6,9 @@ using System;
 public class SO_GearFactory : ScriptableObject
 {
     //initial values
-    [SerializeField]
-    private int initPlayerLife;
+    public int initPlayerLife;
 
-    [SerializeField]
-    private float initPlayerEnergy;
+    public float initPlayerEnergy;
     
     public float PlayerEnergyMax;
 

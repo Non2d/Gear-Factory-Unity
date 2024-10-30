@@ -15,6 +15,8 @@ public class GearControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        transform.Rotate(Vector3.forward, 120.0f);
+
         divisions = 18;
         originAngle = 5.0f;
 

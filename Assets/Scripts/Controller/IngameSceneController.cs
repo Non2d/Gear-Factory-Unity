@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class IngameSceneController : BaseSceneController
 {
@@ -33,6 +34,8 @@ public class IngameSceneController : BaseSceneController
 
     // events
     public event Action OnPlayerLifeChanged;
+
+    private bool isDead = false;
 
     private void Awake()
     {
@@ -109,6 +112,9 @@ public class IngameSceneController : BaseSceneController
 
     public void RestartGame()
     {
+        ///<summary>
+        /// ゲームをリスタートする．ここではメニューの初期化を書いている．
+        ///</summary>
         gf.Initialize();//プレイヤーのステータス等を初期化
         RespawnPlayer();
 
@@ -126,6 +132,9 @@ public class IngameSceneController : BaseSceneController
     //Player制御ロジック
     public void GivePlayerDamage(float damage)
     {
+        ///<summary>
+        /// プレイヤーにダメージを与える．エネルギが0以下になったらデス処理を行う．
+        ///</summary>
         gf.playerEnergy -= damage;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
 
@@ -135,8 +144,36 @@ public class IngameSceneController : BaseSceneController
         }
     }
 
+
     public void HandlePlayerDeath()
     {
+        ///<summary>
+        /// プレイヤーの残機を減らし，3秒後にリスポーンさせる．残機が0以下になったらゲームオーバー画面を表示する．
+        ///</summary>
+        ///
+
+        GameObject explosionEffect = player.transform.Find("BigExplosionEffect").gameObject;
+
+        if ( explosionEffect == null ){
+            Debug.Log("GAME OBJ NOT FOUND");
+        }
+
+        ParticleSystem ps = explosionEffect.GetComponent<ParticleSystem>();
+        
+        if (ps != null && !ps.isPlaying)
+        {
+            ps.Play();
+        }
+        else
+        {
+            Debug.LogError("BigExplosionEffect ParticleSystem not found!");
+        }
+
+        if(isDead){
+            return;
+        }
+        isDead = true;
+
         if (gf.playerLife <= 0)
         {
             if (sc != null)
@@ -152,17 +189,39 @@ public class IngameSceneController : BaseSceneController
         {
             gf.playerLife--;
             OnPlayerLifeChanged?.Invoke();
-            RespawnPlayer();
+            StartCoroutine(RespawnPlayerDelayed(3.0f));
         }
+    }
+
+    private IEnumerator RespawnPlayerDelayed(float delay)
+    {
+        ///<summary>
+        /// プレイヤーをdelay秒後にリスポーンさせる
+        ///</summary>
+        yield return new WaitForSeconds(delay);
+        RespawnPlayer();
+    }
+
+    private void DeactivatePlayer()
+    {
+        ///<summary>
+        /// プレイヤーを非表示にする
+        ///</summary>
+        player.SetActive(false);
     }
 
     private void RespawnPlayer()
     {
+        ///<summary>
+        /// プレイヤーのステータスをリセットし、リスポーンさせる
+        ///</summary>
+        
         //Reset status
         player.GetComponent<Rigidbody>().velocity = Vector3.zero;
         player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        gf.playerEnergy = gf.PlayerEnergyMax;
+        gf.playerEnergy = gf.initPlayerEnergy;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
+        isDead = false;
 
         //Respawn
         Vector3 playerSpawnPosition = SpawnPoint.transform.position;
