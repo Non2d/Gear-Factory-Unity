@@ -2254,6 +2254,10 @@ PrefabInstance:
       propertyPath: playerCamera
       value: 
       objectReference: {fileID: 1659367696}
+    - target: {fileID: 7263683869313315703, guid: 06935946b0313411fb5c9cda4176760d, type: 3}
+      propertyPath: m_Name
+      value: FlamesBig
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

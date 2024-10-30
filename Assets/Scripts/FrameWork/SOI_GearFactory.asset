@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: SOI_GearFactory
   m_EditorClassIdentifier: 
   initPlayerLife: 3
-  initPlayerEnergy: 100
+  initPlayerEnergy: 1000
   PlayerEnergyMax: 1000
-  playerLife: 2
-  playerEnergy: -26
+  playerLife: 3
+  playerEnergy: 100
   AnimStateChase: CB_Chase
   AnimConditionAttack: IsAttacking

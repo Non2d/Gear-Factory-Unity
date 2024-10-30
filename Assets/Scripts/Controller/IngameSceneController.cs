@@ -37,6 +37,8 @@ public class IngameSceneController : BaseSceneController
 
     private bool isDead = false;
 
+    private SpherePlayer sp;
+
     private void Awake()
     {
         //thisの読み込み
@@ -49,6 +51,9 @@ public class IngameSceneController : BaseSceneController
 
     public void Start() //原則：直接Sceneを開いても、タイトル画面のPlayボタン経由でも、全く同じ挙動になること！...と思ったけど、最初からと続きからでは異なるか。Playはとりあえず「最初から」という扱いで。
     {
+        //初期値設定
+        sp = player.GetComponent<SpherePlayer>();
+
         //初期化
         gf.Initialize();//プレイヤーのステータス等を初期化
         RespawnPlayer();
@@ -98,7 +103,9 @@ public class IngameSceneController : BaseSceneController
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        Time.timeScale = 0; // 時間を停止
+        // Time.timeScale = 0; // 時間を停止
+        HideAndFixPlayer();
+        sp.ExplodeEffect();
     }
 
     public void ResetPauseForBackToTitle()
@@ -110,11 +117,12 @@ public class IngameSceneController : BaseSceneController
         Time.timeScale = 1; // 時間を再開
     }
 
+    /// <summary>
+    /// ゲームをリスタートする．ここではメニューの初期化を書いている．
+    /// </summary>
     public void RestartGame()
     {
-        ///<summary>
-        /// ゲームをリスタートする．ここではメニューの初期化を書いている．
-        ///</summary>
+        
         gf.Initialize();//プレイヤーのステータス等を初期化
         RespawnPlayer();
 
@@ -129,12 +137,11 @@ public class IngameSceneController : BaseSceneController
         Time.timeScale = 1; // 時間を再開
     }
 
-    //Player制御ロジック
+    /// <summary>
+    /// プレイヤーにダメージを与える．エネルギが0以下になったらデス処理を行う．
+    /// </summary>
     public void GivePlayerDamage(float damage)
     {
-        ///<summary>
-        /// プレイヤーにダメージを与える．エネルギが0以下になったらデス処理を行う．
-        ///</summary>
         gf.playerEnergy -= damage;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
 
@@ -144,31 +151,11 @@ public class IngameSceneController : BaseSceneController
         }
     }
 
-
+    /// <summary>
+    /// プレイヤーの残機を減らし，3秒後にリスポーンさせる．残機が0以下になったらゲームオーバー画面を表示する．
+    /// </summary>
     public void HandlePlayerDeath()
     {
-        ///<summary>
-        /// プレイヤーの残機を減らし，3秒後にリスポーンさせる．残機が0以下になったらゲームオーバー画面を表示する．
-        ///</summary>
-        ///
-
-        GameObject explosionEffect = player.transform.Find("BigExplosionEffect").gameObject;
-
-        if ( explosionEffect == null ){
-            Debug.Log("GAME OBJ NOT FOUND");
-        }
-
-        ParticleSystem ps = explosionEffect.GetComponent<ParticleSystem>();
-        
-        if (ps != null && !ps.isPlaying)
-        {
-            ps.Play();
-        }
-        else
-        {
-            Debug.LogError("BigExplosionEffect ParticleSystem not found!");
-        }
-
         if(isDead){
             return;
         }
@@ -193,30 +180,38 @@ public class IngameSceneController : BaseSceneController
         }
     }
 
+    /// <summary>
+    /// プレイヤーを【delay】秒後にリスポーンさせる
+    /// </summary>
     private IEnumerator RespawnPlayerDelayed(float delay)
     {
-        ///<summary>
-        /// プレイヤーをdelay秒後にリスポーンさせる
-        ///</summary>
+        HideAndFixPlayer();
+        sp.ExplodeEffect(); //循環参照気味なので注意...あとでイベントか、シンプルにエフェクトをすべてSceneControllerに移す
         yield return new WaitForSeconds(delay);
         RespawnPlayer();
     }
 
-    private void DeactivatePlayer()
+    /// <summary>
+    /// プレイヤーを非表示にする
+    /// </summary>
+    private void HideAndFixPlayer()
     {
-        ///<summary>
-        /// プレイヤーを非表示にする
-        ///</summary>
-        player.SetActive(false);
+        player.GetComponent<Renderer>().enabled = false;
+        player.GetComponent<Collider>().enabled = false;
+        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        player.GetComponent<SpherePlayer>().SetInputEnabled(false);
     }
 
+    /// <summary>
+    /// プレイヤーのステータスをリセットし、リスポーンさせる
+    /// </summary>
     private void RespawnPlayer()
     {
-        ///<summary>
-        /// プレイヤーのステータスをリセットし、リスポーンさせる
-        ///</summary>
-        
         //Reset status
+        player.GetComponent<Renderer>().enabled = true;
+        player.GetComponent<Collider>().enabled = true;
+        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        player.GetComponent<SpherePlayer>().SetInputEnabled(true);
         player.GetComponent<Rigidbody>().velocity = Vector3.zero;
         player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
         gf.playerEnergy = gf.initPlayerEnergy;

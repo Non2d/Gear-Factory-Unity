@@ -26,13 +26,19 @@ public class SpherePlayer : MonoBehaviour
     [SerializeField]
     private IngameSceneController sc;
 
-    private ParticleSystem ps;
+    private ParticleSystem[] psArray;
+    private ParticleSystem psFire;
+    private ParticleSystem psExplode;
 
     [SerializeField]
     private AudioSource fireAudio;
-
     [SerializeField]
     private AudioClip fireClip;
+
+    [SerializeField]
+    private AudioSource explodeAudio;
+    [SerializeField]
+    private AudioClip explodeClip;
 
     [SerializeField]
     private GameObject SpeedLines;
@@ -44,6 +50,8 @@ public class SpherePlayer : MonoBehaviour
     private bool isGambleMode = false;
     
     private Vector3 previousDirection;
+
+    private bool isKeyEnabled = true;
 
     // Start is called before the first frame update
     void Start()
@@ -60,20 +68,30 @@ public class SpherePlayer : MonoBehaviour
 
         speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
 
-        if (ps == null) // インスペクタで保存し忘れているときのための保険
-        {
-            ps = GetComponentInChildren<ParticleSystem>();
-        }
-
-        Debug.Log(ps);
-
         if (fireAudio != null)
         {
             fireAudio.loop = true;
             fireAudio.clip = fireClip;
             fireAudio.mute = false;
             fireAudio.volume = 0.1f; //param
+            fireAudio.Stop(); // SEは最初は停止
         }
+
+        if (explodeAudio != null)
+        {
+            explodeAudio.loop = false;
+            explodeAudio.clip = explodeClip;
+            explodeAudio.mute = false;
+            explodeAudio.volume = 0.1f; //param
+            explodeAudio.Stop(); // SEは最初は停止
+        }
+
+        // 各エフェクトを取得
+        psArray = GetComponentsInChildren<ParticleSystem>();
+        psFire = psArray.FirstOrDefault(ps => ps.transform.name == "FlamesBig");
+        psFire.Stop(); // 炎エフェクトは最初は非表示
+        psExplode = psArray.FirstOrDefault(ps => ps.transform.name == "BigExplosionEffect");
+        psExplode.Stop(); // 爆発エフェクトは最初は非表示
 
         // SpeedLinesのParticle Systemを取得
         speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
@@ -94,7 +112,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         //Spaceでジャンプ
-        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (isKeyEnabled&&Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット
@@ -102,17 +120,18 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // Qキーでオプション画面を表示
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (isKeyEnabled&&Input.GetKeyDown(KeyCode.Q))
         {
             sc.Pause();
         }
 
         //後で，ダメージを受けてる時にパーティクルを出すように変更
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        if (isKeyEnabled&&Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
         {
-            if (!ps.isPlaying) // パーティクルが再生されていないなら
+            Debug.Log("Player is moving.");
+            if (!psFire.isPlaying) // パーティクルが再生されていないなら
             {
-                ps.Play(); // 再生開始
+                psFire.Play(); // 再生開始
             }
             if (!fireAudio.isPlaying) // 音声が再生されていないなら
             {
@@ -123,9 +142,9 @@ public class SpherePlayer : MonoBehaviour
         }
         else
         {
-            if (ps.isPlaying) // パーティクルが再生されているなら
+            if (psFire.isPlaying) // パーティクルが再生されているなら
             {
-                ps.Stop(); // 再生停止
+                psFire.Stop(); // 再生停止
             }
             if (fireAudio.isPlaying && !isFadingOut) // 音声が再生されているなら
             {
@@ -210,14 +229,14 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // 決定した方向に力を加える
-        if (!isGambleMode&&playerForward != Vector3.zero)
+        if (isKeyEnabled&&!isGambleMode&&playerForward != Vector3.zero)
         {
             rb.AddForce(playerForward.normalized * force);
             sc.GivePlayerDamage(0.5f);
         }
 
         //Shiftでトルクを加える
-        if (!isGambleMode&&Input.GetKey(KeyCode.LeftShift))
+        if (isKeyEnabled&&!isGambleMode&&Input.GetKey(KeyCode.LeftShift))
         {
             Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
@@ -309,14 +328,37 @@ public class SpherePlayer : MonoBehaviour
     void ChangeEmissionRate(float rate)
     {
         // パーティクルのエミッションレートを変更。e.g., プレイヤーの燃え具合を制御
-        var emission = ps.emission;
+        var emission = psFire.emission;
 
-        if (ps == null)
+        if (psFire == null)
         {
             Debug.LogError("Emission module not found!");
             return;
         }
 
         emission.rateOverTime = new ParticleSystem.MinMaxCurve(rate); // rateを設定。直接数値の代入はできないらしい
+    }
+
+    public void ExplodeEffect()
+    {
+        // 爆発エフェクトを再生
+        if (psExplode != null)
+        {
+            psExplode.Play();
+            if  (!explodeAudio.isPlaying)
+            {
+                explodeAudio.Play();
+            }
+        }
+        else
+        {
+            Debug.LogError("BigExplosionEffect ParticleSystem not found!");
+        }
+    }
+
+    public void SetInputEnabled(bool isEnabled)
+    {
+        // 入力を無効化
+        isKeyEnabled = isEnabled;
     }
 }
