@@ -49,97 +49,114 @@ public class IngameSceneController : BaseSceneController
         CGgameOverMenu = gameOverMenu.GetComponent<CanvasGroup>();
     }
 
-    public void Start() //原則：直接Sceneを開いても、タイトル画面のPlayボタン経由でも、全く同じ挙動になること！...と思ったけど、最初からと続きからでは異なるか。Playはとりあえず「最初から」という扱いで。
+    public void Start()
     {
-        //初期値設定
+        InitializeGame();
+    }
+    
+    /// <summary>
+    /// ゲームの初期化
+    /// </summary>
+    private void InitializeGame()
+    {
         sp = player.GetComponent<SpherePlayer>();
-
-        //初期化
-        gf.Initialize();//プレイヤーのステータス等を初期化
+        gf.Initialize();
         RespawnPlayer();
 
-        Time.timeScale = 1; //明示的に初期化しないと遷移後動かないことも
+        Time.timeScale = 1;
 
-        //UI関連
-        OnPlayerLifeChanged?.Invoke(); //プレイヤー残機の初期化をUIに反映
+        OnPlayerLifeChanged?.Invoke();
 
-        CGmenu.alpha = 0; //ポーズメニューの初期設定
-        CGmenu.interactable = false;
-        CGmenu.blocksRaycasts = false;
+        InitializeCanvasGroup(CGmenu);
+        InitializeCanvasGroup(CGgameOverMenu);
+    }
 
-        CGgameOverMenu.alpha = 0; // ゲームオーバーメニューの初期設定
-        CGgameOverMenu.interactable = false;
-        CGgameOverMenu.blocksRaycasts = false;
+    /// <summary>
+    /// CanvasGroupの初期化
+    /// </summary>
+    /// <param name="canvasGroup">Canvasゲームオブジェクトの子コンポーネント</param>
+    private void InitializeCanvasGroup(CanvasGroup canvasGroup)
+    {
+        canvasGroup.alpha = 0;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
     }
 
     //UI制御関連
+    /// <summary>
+    /// ポーズ処理
+    /// </summary>
     public void Pause()
     {
-        CGmenu.alpha = 1; // メニューを表示、操作可能に
-        CGmenu.interactable = true;
-        CGmenu.blocksRaycasts = true;
+        ShowCanvasGroup(CGmenu);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-
-        Time.timeScale = 0; // 時間を停止
+        Time.timeScale = 0;
     }
 
+    /// <summary>
+    /// ポーズ解除処理
+    /// </summary>
     public void CancelPause()
     {
-        CGmenu.alpha = 0; // メニューを非表示、操作不可能に
-        CGmenu.interactable = false;
-        CGmenu.blocksRaycasts = false;
+        HideCanvasGroup(CGmenu);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-
-        Time.timeScale = 1; // 時間を再開
+        Time.timeScale = 1;
     }
 
-    public void ShowGameOverMenu()
+    /// <summary>
+    /// ゲームオーバーメニューを表示し、プレイヤーを無効化、爆死エフェクトを再生
+    /// </summary>
+    public void HandleGameOver()
     {
-        CGgameOverMenu.alpha = 1; // ゲームオーバーメニューを表示・操作可能に
-        CGgameOverMenu.interactable = true;
-        CGgameOverMenu.blocksRaycasts = true;
+        ShowCanvasGroup(CGgameOverMenu);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-
-        // Time.timeScale = 0; // 時間を停止
         HideAndFixPlayer();
         sp.ExplodeEffect();
     }
 
-    public void ResetPauseForBackToTitle()
+    /// <summary>
+    /// CanvasGroupを表示する
+    /// </summary>
+    /// <param name="canvasGroup"></param>
+    private void ShowCanvasGroup(CanvasGroup canvasGroup)
     {
-        CGmenu.alpha = 0; // メニューを非表示、操作不可能に
-        CGmenu.interactable = false;
-        CGmenu.blocksRaycasts = false;
-
-        Time.timeScale = 1; // 時間を再開
+        canvasGroup.alpha = 1;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
     }
 
     /// <summary>
-    /// ゲームをリスタートする．ここではメニューの初期化を書いている．
+    /// CanvasGroupを非表示にする
+    /// </summary>
+    /// <param name="canvasGroup"></param>
+    private void HideCanvasGroup(CanvasGroup canvasGroup)
+    {
+        canvasGroup.alpha = 0;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+    }
+    
+    /// <summary>
+    /// ゲームを再開する。残機のUIへの通知も行う
     /// </summary>
     public void RestartGame()
     {
-        
-        gf.Initialize();//プレイヤーのステータス等を初期化
+        gf.Initialize();
         RespawnPlayer();
-
-        OnPlayerLifeChanged?.Invoke(); //プレイヤー残機の初期化をUIに反映
-
-        CGgameOverMenu.alpha = 0; // ゲームオーバーメニューの初期設定
-        CGgameOverMenu.interactable = false;
-        CGgameOverMenu.blocksRaycasts = false;
+        OnPlayerLifeChanged?.Invoke();
+        HideCanvasGroup(CGgameOverMenu);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-
-        Time.timeScale = 1; // 時間を再開
+        Time.timeScale = 1;
     }
 
     /// <summary>
-    /// プレイヤーにダメージを与える．エネルギが0以下になったらデス処理を行う．
+    /// プレイヤーにダメージを与える。エネルギーが0以下になった場合、プレイヤーをデスさせる
     /// </summary>
+    /// <param name="damage"></param>
     public void GivePlayerDamage(float damage)
     {
         gf.playerEnergy -= damage;
@@ -152,25 +169,16 @@ public class IngameSceneController : BaseSceneController
     }
 
     /// <summary>
-    /// プレイヤーの残機を減らし，3秒後にリスポーンさせる．残機が0以下になったらゲームオーバー画面を表示する．
+    /// プレイヤーのエネルギーが0になった場合、ゲームオーバー処理を行う
     /// </summary>
     public void HandlePlayerDeath()
     {
-        if(isDead){
-            return;
-        }
+        if (isDead) return; // Delay中に再度死亡処理が呼ばれるのを防ぐ
         isDead = true;
 
         if (gf.playerLife <= 0)
         {
-            if (sc != null)
-            {
-                sc.ShowGameOverMenu();
-            }
-            else
-            {
-                Debug.LogError("SceneController component not found on sceneController GameObject.");
-            }
+            sc?.HandleGameOver();
         }
         else
         {
@@ -183,45 +191,52 @@ public class IngameSceneController : BaseSceneController
     /// <summary>
     /// プレイヤーを【delay】秒後にリスポーンさせる
     /// </summary>
+    /// <param name="delay"></param>
     private IEnumerator RespawnPlayerDelayed(float delay)
     {
         HideAndFixPlayer();
-        sp.ExplodeEffect(); //循環参照気味なので注意...あとでイベントか、シンプルにエフェクトをすべてSceneControllerに移す
+        sp.ExplodeEffect();
         yield return new WaitForSeconds(delay);
         RespawnPlayer();
     }
 
     /// <summary>
-    /// プレイヤーを非表示にする
+    /// プレイヤーを非表示にし、プレイヤーのコンポーネントを無効化する。座標も固定する。
     /// </summary>
     private void HideAndFixPlayer()
     {
-        player.GetComponent<Renderer>().enabled = false;
-        player.GetComponent<Collider>().enabled = false;
-        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        player.GetComponent<SpherePlayer>().SetInputEnabled(false);
+        var renderer = player.GetComponent<Renderer>();
+        var collider = player.GetComponent<Collider>();
+        var rigidbody = player.GetComponent<Rigidbody>();
+        var spherePlayer = player.GetComponent<SpherePlayer>();
+
+        renderer.enabled = false;
+        collider.enabled = false;
+        rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+        spherePlayer.SetInputEnabled(false);
     }
 
     /// <summary>
-    /// プレイヤーのステータスをリセットし、リスポーンさせる
+    /// プレイヤーをリスポーンさせる。
     /// </summary>
     private void RespawnPlayer()
     {
-        //Reset status
-        player.GetComponent<Renderer>().enabled = true;
-        player.GetComponent<Collider>().enabled = true;
-        player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        player.GetComponent<SpherePlayer>().SetInputEnabled(true);
-        player.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        player.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        var renderer = player.GetComponent<Renderer>();
+        var collider = player.GetComponent<Collider>();
+        var rigidbody = player.GetComponent<Rigidbody>();
+        var spherePlayer = player.GetComponent<SpherePlayer>();
+
+        renderer.enabled = true;
+        collider.enabled = true;
+        rigidbody.constraints = RigidbodyConstraints.None;
+        spherePlayer.SetInputEnabled(true); //循環参照になってるので、後でイベントかエフェクトをこっちで直接取得して解決する
+        rigidbody.velocity = Vector3.zero;
+        rigidbody.angularVelocity = Vector3.zero;
         gf.playerEnergy = gf.initPlayerEnergy;
         playerEnergyGauge.UpdatePlayerEnergyGauge();
         isDead = false;
 
-        //Respawn
-        Vector3 playerSpawnPosition = SpawnPoint.transform.position;
-        Quaternion playerSpawnRotation = SpawnPoint.transform.rotation;
-        player.transform.position = playerSpawnPosition;
-        player.transform.rotation = playerSpawnRotation;
+        player.transform.position = SpawnPoint.transform.position;
+        player.transform.rotation = SpawnPoint.transform.rotation;
     }
 }

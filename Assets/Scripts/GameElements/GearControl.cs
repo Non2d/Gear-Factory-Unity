@@ -1,7 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 public class GearControl : MonoBehaviour
 {
@@ -12,9 +12,12 @@ public class GearControl : MonoBehaviour
     private int divisions; //param
     private float originAngle; //param
 
+    private IngameSceneController sc ;
+
     // Start is called before the first frame update
     void Start()
     {
+        sc = FindObjectOfType<IngameSceneController>();
         transform.Rotate(Vector3.forward, 120.0f);
 
         divisions = 18;
@@ -82,6 +85,11 @@ public class GearControl : MonoBehaviour
         return angle;
     }
 
+    /// <summary>
+    /// プレイヤーがどのポケットに入ったかを計算する
+    /// </summary>
+    /// <param name="localDirection">ギアオブジェクトから見たプレイヤーの角度</param>
+    /// <returns></returns>
     int GetPocketLanded(float localDirection)
     {
         // -10から始まる範囲にシフト
@@ -93,9 +101,25 @@ public class GearControl : MonoBehaviour
         return pocketNumber;
     }
 
+    /// <summary>
+    /// ポケット入賞時の処理。プレイヤーがChildTriggerに入ったときに発火する。
+    /// </summary>
+    /// <param name="other"></param>
     public void OnPlayerEnterChildTrigger(Collider other) //TagがPlayerのとき、ChildTriggerHandlerから呼び出される
     {
         Debug.Log(GetLocalDirectionToPlayer(other.gameObject));
         Debug.Log(GetPocketLanded(GetLocalDirectionToPlayer(other.gameObject)));
+
+        int pocketNumber = GetPocketLanded(GetLocalDirectionToPlayer(other.gameObject));
+
+        if (new List<int> { 2,4,6,8,10,12,14,16,18 }.Contains(pocketNumber))
+        {
+            Debug.Log("Bonus!");
+        }
+        else
+        {
+            // Set player's energy to 0
+            sc.HandlePlayerDeath();
+        }
     }
 }

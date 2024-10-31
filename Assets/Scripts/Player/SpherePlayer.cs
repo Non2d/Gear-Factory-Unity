@@ -48,21 +48,36 @@ public class SpherePlayer : MonoBehaviour
     private float fovVelocity;
 
     private bool isGambleMode = false;
-    
-    private Vector3 previousDirection;
 
     private bool isKeyEnabled = true;
+
+    [SerializeField]
+    private Material defaultMaterial;
+
+    [SerializeField]
+    private Material draggedMaterial;
+
+    [SerializeField]
+    private Material undraggedMaterial;
+
+    /// <summary>
+    /// 空気抵抗の算出に使う前フレームの速度
+    /// </summary>
+    private Vector3 previousVelocity = Vector3.zero;
 
     // Start is called before the first frame update
     void Start()
     {
         // ギャンブルシーン判定
-        string[] sceneNames = {"Level0102"};
+        string[] sceneNames = { "Level0102" };
         if (sceneNames.Contains(SceneManager.GetActiveScene().name))
         {
             isGambleMode = true;
+            ChangeMaterial(undraggedMaterial);
+        } else {
+            ChangeMaterial(defaultMaterial);
         }
-        
+
         rb = GetComponent<Rigidbody>(); //this.は省略可能
         rb.maxAngularVelocity = 100.0f;
 
@@ -96,11 +111,10 @@ public class SpherePlayer : MonoBehaviour
         // SpeedLinesのParticle Systemを取得
         speedLinesPS = SpeedLines.GetComponent<ParticleSystem>();
         currentFov = playerCamera.GetFov();
-
-        previousDirection = Vector3.zero;
     }
 
-    private Vector3 previousVelocity = Vector3.zero;
+    
+
     void Update()
     {
         // Debug.Log(LatestVelocityDirection());
@@ -112,7 +126,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         //Spaceでジャンプ
-        if (isKeyEnabled&&Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (isKeyEnabled && !isGambleMode && Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット
@@ -120,13 +134,13 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // Qキーでオプション画面を表示
-        if (isKeyEnabled&&Input.GetKeyDown(KeyCode.Q))
+        if (isKeyEnabled && Input.GetKeyDown(KeyCode.Q))
         {
             sc.Pause();
         }
 
         //後で，ダメージを受けてる時にパーティクルを出すように変更
-        if (isKeyEnabled&&Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        if (isKeyEnabled && !isGambleMode && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
             Debug.Log("Player is moving.");
             if (!psFire.isPlaying) // パーティクルが再生されていないなら
@@ -175,6 +189,60 @@ public class SpherePlayer : MonoBehaviour
         previousVelocity = rb.velocity;
     }
 
+    private Vector3 playerForward;
+
+    void FixedUpdate() //物理演算関連はできるだけこちらで処理。フレームレートに依存しない処理を目指す感じかな？
+    {
+        // Gamble Mode以外での移動処理
+        playerForward = Vector3.zero;
+        // WASDキーで方向を決定
+        if (Input.GetKey(KeyCode.W))
+        {
+            playerForward += cameraForward;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            playerForward -= cameraForward;
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            playerForward += Vector3.Cross(cameraForward, Vector3.up);
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            playerForward -= Vector3.Cross(cameraForward, Vector3.up);
+        }
+
+        // 決定した方向に力を加える
+        if (isKeyEnabled && !isGambleMode && playerForward != Vector3.zero)
+        {
+            rb.AddForce(playerForward.normalized * force);
+            sc.GivePlayerDamage(0.5f);
+        }
+
+        // Shiftでトルクを加える
+        if (isKeyEnabled && !isGambleMode && Input.GetKey(KeyCode.LeftShift))
+        {
+            Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
+            rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
+            sc.GivePlayerDamage(1.0f); //param
+        }
+
+        // Gamble Modeでの移動処理:SHIFTで空気抵抗増大
+        if (isKeyEnabled && isGambleMode && Input.GetKey(KeyCode.LeftShift))
+        {
+            ChangeMaterial(draggedMaterial);
+            float kDrag = 10.0f; //param
+            Vector3 dragForce = -kDrag * rb.velocity; //param
+            rb.AddForce(dragForce);
+            sc.GivePlayerDamage(0.1f);
+        } else {
+            ChangeMaterial(undraggedMaterial);
+        }
+
+        ApplyDragForce();
+    }
+
     void ControlSpeedLinesAndFov()
     {
         // cameraForward方向への速度成分を計算
@@ -197,65 +265,11 @@ public class SpherePlayer : MonoBehaviour
         // Fovの制御
         float baseFov = 60.0f;
         float maxFov = 85.0f;
-        float targetFov = Mathf.Clamp(baseFov + (forwardSpeed > 50 ? 2*(forwardSpeed - 50) : 0), baseFov, maxFov);
+        float targetFov = Mathf.Clamp(baseFov + (forwardSpeed > 50 ? 2 * (forwardSpeed - 50) : 0), baseFov, maxFov);
 
         // Fovを滑らかに変更
         currentFov = Mathf.SmoothDamp(currentFov, targetFov, ref fovVelocity, 0.1f);
         playerCamera.SetFov(currentFov);
-    }
-
-
-    private Vector3 playerForward;
-
-    void FixedUpdate() //物理演算関連はできるだけこちらで処理。フレームレートに依存しない処理を目指す感じかな？
-    {
-        playerForward = Vector3.zero;
-        // WASDキーで方向を決定
-        if (Input.GetKey(KeyCode.W))
-        {
-            playerForward += cameraForward;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            playerForward -= cameraForward;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            playerForward += Vector3.Cross(cameraForward, Vector3.up);
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            playerForward -= Vector3.Cross(cameraForward, Vector3.up);
-        }
-
-        // 決定した方向に力を加える
-        if (isKeyEnabled&&!isGambleMode&&playerForward != Vector3.zero)
-        {
-            rb.AddForce(playerForward.normalized * force);
-            sc.GivePlayerDamage(0.5f);
-        }
-
-        //Shiftでトルクを加える
-        if (isKeyEnabled&&!isGambleMode&&Input.GetKey(KeyCode.LeftShift))
-        {
-            Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
-            rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
-            sc.GivePlayerDamage(1.0f); //param
-        }
-
-        ApplyDragForce();
-    }
-
-    Vector3 LatestVelocityDirection()
-    {
-        Vector3 direction = rb.velocity.normalized;
-        if (direction == Vector3.zero)
-        {
-            direction = previousDirection;
-        } else {
-            previousDirection = direction;
-        }
-        return direction;
     }
 
     // オブジェクトに接触したときに呼ばれるメソッド
@@ -265,7 +279,8 @@ public class SpherePlayer : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
             canJump = true; // ジャンプ可能にする
-        } else if (collision.gameObject.tag == "Boss")
+        }
+        else if (collision.gameObject.tag == "Boss")
         {
             canJump = true;
         }
@@ -345,7 +360,7 @@ public class SpherePlayer : MonoBehaviour
         if (psExplode != null)
         {
             psExplode.Play();
-            if  (!explodeAudio.isPlaying)
+            if (!explodeAudio.isPlaying)
             {
                 explodeAudio.Play();
             }
@@ -360,5 +375,21 @@ public class SpherePlayer : MonoBehaviour
     {
         // 入力を無効化
         isKeyEnabled = isEnabled;
+    }
+
+    /// <summary>
+    /// ゲームオブジェクトのマテリアルを変更する
+    /// </summary>
+    private void ChangeMaterial(Material newMaterial)
+    {
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null && newMaterial != null)
+        {
+            renderer.material = newMaterial;
+        }
+        else
+        {
+            Debug.LogError("In inspector, renderer or newMaterial is not assigned.");
+        }
     }
 }
