@@ -3,10 +3,13 @@ using UnityEngine;
 using TMPro;
 using System.Linq;
 
+using UnityEngine.SceneManagement;
+
 public class GearControl : MonoBehaviour
 {
-    public float gearSpeed = 20.0f;
+    [SerializeField] private string nextSceneName;
 
+    public float gearSpeed = 20.0f;
     private List<TextMeshPro> textComponents = new List<TextMeshPro>();
 
     private int divisions; //param
@@ -57,6 +60,9 @@ public class GearControl : MonoBehaviour
         // Debug.Log(GetLocalDirectionToPlayer());
     }
 
+    /// <summary>
+    /// ゲームオブジェクトから見たプレイヤーの方向を取得する
+    /// </summary>
     float GetLocalDirectionToPlayer(GameObject player)
     {
         // 現在のオブジェクトの位置を基準とする
@@ -115,6 +121,7 @@ public class GearControl : MonoBehaviour
         if (new List<int> { 2,4,6,8,10,12,14,16,18 }.Contains(pocketNumber))
         {
             Debug.Log("Bonus!");
+            SceneManager.LoadScene(nextSceneName);
         }
         else
         {

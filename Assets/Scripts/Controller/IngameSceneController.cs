@@ -9,28 +9,25 @@ public class IngameSceneController : BaseSceneController
     IngameSceneController sc;
 
     //Playerの読み込み
-    [SerializeField]
-    private GameObject player;
+    [SerializeField] private GameObject player;
 
     //Scriptable Objectの読み込み
-    [SerializeField]
-    private SO_GearFactory gf;
+    [SerializeField] private SO_GearFactory gf;
 
     // Gaugeの読み込み
-    [SerializeField]
-    private UIPlayerEnergy playerEnergyGauge;
+    [SerializeField] private UIPlayerEnergy playerEnergyGauge;
+
+    // ギャンブルモード化の設定
+    public bool isGamblingMode = false;
 
     //UIのcanvasGroupを設定
     private CanvasGroup CGmenu;
     private CanvasGroup CGgameOverMenu;
 
-    [SerializeField]
-    private GameObject menu;
-    [SerializeField]
-    private GameObject gameOverMenu;
+    [SerializeField] private GameObject menu;
+    [SerializeField] private GameObject gameOverMenu;
 
-    [SerializeField]
-    private GameObject SpawnPoint;
+    [SerializeField] private GameObject SpawnPoint;
 
     // events
     public event Action OnPlayerLifeChanged;

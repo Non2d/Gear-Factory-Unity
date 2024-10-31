@@ -47,18 +47,13 @@ public class SpherePlayer : MonoBehaviour
     private float currentFov;
     private float fovVelocity;
 
-    private bool isGambleMode = false;
-
     private bool isKeyEnabled = true;
 
-    [SerializeField]
-    private Material defaultMaterial;
+    [SerializeField] private Material defaultMaterial;
 
-    [SerializeField]
-    private Material draggedMaterial;
+    [SerializeField] private Material draggedMaterial;
 
-    [SerializeField]
-    private Material undraggedMaterial;
+    [SerializeField] private Material undraggedMaterial;
 
     /// <summary>
     /// 空気抵抗の算出に使う前フレームの速度
@@ -69,10 +64,8 @@ public class SpherePlayer : MonoBehaviour
     void Start()
     {
         // ギャンブルシーン判定
-        string[] sceneNames = { "Level0102" };
-        if (sceneNames.Contains(SceneManager.GetActiveScene().name))
+        if (sc.isGamblingMode)
         {
-            isGambleMode = true;
             ChangeMaterial(undraggedMaterial);
         } else {
             ChangeMaterial(defaultMaterial);
@@ -113,8 +106,6 @@ public class SpherePlayer : MonoBehaviour
         currentFov = playerCamera.GetFov();
     }
 
-    
-
     void Update()
     {
         // Debug.Log(LatestVelocityDirection());
@@ -126,7 +117,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         //Spaceでジャンプ
-        if (isKeyEnabled && !isGambleMode && Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (isKeyEnabled && !sc.isGamblingMode && Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット
@@ -140,9 +131,9 @@ public class SpherePlayer : MonoBehaviour
         }
 
         //後で，ダメージを受けてる時にパーティクルを出すように変更
-        if (isKeyEnabled && !isGambleMode && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
+        if (isKeyEnabled && !sc.isGamblingMode && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)) 
+        || sc.isGamblingMode && Input.GetKey(KeyCode.LeftShift))
         {
-            Debug.Log("Player is moving.");
             if (!psFire.isPlaying) // パーティクルが再生されていないなら
             {
                 psFire.Play(); // 再生開始
@@ -151,7 +142,7 @@ public class SpherePlayer : MonoBehaviour
             {
                 fireAudio.Play(); // 音声再生開始
             }
-            fireAudio.volume = 0.1f; // 音量を最大に設定 param
+            fireAudio.volume = 0.1f; // 音量を最大に設定
             isFadingOut = false; // フェードアウトを停止
         }
         else
@@ -167,7 +158,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // フェードアウト処理
-        if (isFadingOut)
+        if (!sc.isGamblingMode&&isFadingOut)
         {
             fireAudio.volume -= fadeOutSpeed * Time.deltaTime;
             if (fireAudio.volume <= 0)
@@ -214,33 +205,32 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // 決定した方向に力を加える
-        if (isKeyEnabled && !isGambleMode && playerForward != Vector3.zero)
+        if (isKeyEnabled && !sc.isGamblingMode && playerForward != Vector3.zero)
         {
             rb.AddForce(playerForward.normalized * force);
             sc.GivePlayerDamage(0.5f);
         }
 
         // Shiftでトルクを加える
-        if (isKeyEnabled && !isGambleMode && Input.GetKey(KeyCode.LeftShift))
+        if (isKeyEnabled && !sc.isGamblingMode && Input.GetKey(KeyCode.LeftShift))
         {
             Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
             sc.GivePlayerDamage(1.0f); //param
         }
 
-        // Gamble Modeでの移動処理:SHIFTで空気抵抗増大
-        if (isKeyEnabled && isGambleMode && Input.GetKey(KeyCode.LeftShift))
+        float kDragForce = 0.5f;
+        // Gamble Modeでの移動処理:SHIFTで空気抵抗追加
+        if (isKeyEnabled && sc.isGamblingMode && Input.GetKey(KeyCode.LeftShift))
         {
             ChangeMaterial(draggedMaterial);
-            float kDrag = 10.0f; //param
-            Vector3 dragForce = -kDrag * rb.velocity; //param
-            rb.AddForce(dragForce);
+            kDragForce =10.0f;
             sc.GivePlayerDamage(0.1f);
         } else {
             ChangeMaterial(undraggedMaterial);
         }
 
-        ApplyDragForce();
+        ApplyDragForce(kDragForce);
     }
 
     void ControlSpeedLinesAndFov()
@@ -324,9 +314,8 @@ public class SpherePlayer : MonoBehaviour
     }
 
     // 空気抵抗をシミュレート
-    void ApplyDragForce()
+    void ApplyDragForce(float kDrag = 0.5f) //param
     {
-        float kDrag = 0.5f; //param
         Vector3 dragForce = -kDrag * rb.velocity; //param
         rb.AddForce(dragForce);
     }

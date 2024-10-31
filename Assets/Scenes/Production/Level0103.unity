@@ -1612,6 +1612,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1979995986}
     - target: {fileID: 4391124887791549134, guid: a2501dbc4f9ba9f4988eed6fddd9c54d, type: 3}
+      propertyPath: isGamblingMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4391124887791549134, guid: a2501dbc4f9ba9f4988eed6fddd9c54d, type: 3}
       propertyPath: playerEnergyGauge
       value: 
       objectReference: {fileID: 1979995986}
@@ -1764,6 +1768,10 @@ PrefabInstance:
     - target: {fileID: 457810330921773002, guid: 34856df867fa8b34184ef877db9c827f, type: 3}
       propertyPath: m_Name
       value: Gear36
+      objectReference: {fileID: 0}
+    - target: {fileID: 8298575681712102155, guid: 34856df867fa8b34184ef877db9c827f, type: 3}
+      propertyPath: nextSceneName
+      value: Level0101
       objectReference: {fileID: 0}
     - target: {fileID: 8397970606270159298, guid: 34856df867fa8b34184ef877db9c827f, type: 3}
       propertyPath: m_LocalScale.x

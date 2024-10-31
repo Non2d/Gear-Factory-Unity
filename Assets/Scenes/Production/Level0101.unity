@@ -1375,6 +1375,18 @@ PrefabInstance:
       propertyPath: explodeAudio
       value: 
       objectReference: {fileID: 1996716827}
+    - target: {fileID: 3538341624451217788, guid: 0507ca278476d2c4993a48bb3e503b57, type: 3}
+      propertyPath: defaultMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 196a83e4fac7a644ebc189706f6c2082, type: 2}
+    - target: {fileID: 3538341624451217788, guid: 0507ca278476d2c4993a48bb3e503b57, type: 3}
+      propertyPath: draggedMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 0e3ad63f883b06b458c1ef2d59167313, type: 2}
+    - target: {fileID: 3538341624451217788, guid: 0507ca278476d2c4993a48bb3e503b57, type: 3}
+      propertyPath: undraggedMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 4aac98aef254ecf429643db51adb8f72, type: 2}
     - target: {fileID: 6236886063782070737, guid: 0507ca278476d2c4993a48bb3e503b57, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
