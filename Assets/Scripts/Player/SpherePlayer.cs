@@ -158,7 +158,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         // フェードアウト処理
-        if (!sc.isGamblingMode&&isFadingOut)
+        if (isFadingOut)
         {
             fireAudio.volume -= fadeOutSpeed * Time.deltaTime;
             if (fireAudio.volume <= 0)
