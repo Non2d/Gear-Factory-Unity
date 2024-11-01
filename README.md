@@ -1,10 +1,12 @@
 # Gear Factory
 ![image](https://github.com/Non2d/gear-factory-release/assets/102778345/d7af12e2-9a56-4bf7-a229-e5378d72ebb5)
 
-## 動作環境
+## Unity Room リンク
+https://unityroom.com/games/gear_factory_001
+
+## 動作環境(直接インストールする場合)
 
 - **対応OS**: Windowsのみ対応しています。
-- **注意事項**: 環境によりゲーム内の時間が進む早さが変わり、制作者の意図と異なる挙動が発生する場合があります。（例：ギアの動きが速すぎてボールが中々ポケットに入らない、など）
 
 ## プレイ動画
 
