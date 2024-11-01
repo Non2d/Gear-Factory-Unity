@@ -13,6 +13,12 @@ public class SpherePlayer : MonoBehaviour
     float force = 100.0f;
     float torque = 10.0f;
 
+    //params
+    float dpsMove = 0.5f;
+    float dpsJump = 30.0f;
+    float dpsTorque = 1.0f;
+    float dpsDrag = 10.0f;
+
     private bool isFadingOut = false;
     private float fadeOutSpeed = 0.1f; // フェードアウトの速度 param
 
@@ -121,7 +127,7 @@ public class SpherePlayer : MonoBehaviour
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット
-            sc.GivePlayerDamage(30.0f); //param
+            sc.GivePlayerDamage(dpsJump); //param
         }
 
         // Qキーでオプション画面を表示
@@ -208,7 +214,7 @@ public class SpherePlayer : MonoBehaviour
         if (isKeyEnabled && !sc.isGamblingMode && playerForward != Vector3.zero)
         {
             rb.AddForce(playerForward.normalized * force);
-            sc.GivePlayerDamage(0.5f);
+            sc.GivePlayerDamage(dpsMove);
         }
 
         // Shiftでトルクを加える
@@ -216,7 +222,7 @@ public class SpherePlayer : MonoBehaviour
         {
             Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
-            sc.GivePlayerDamage(1.0f); //param
+            sc.GivePlayerDamage(dpsTorque); //param
         }
 
         float kDragForce = 0.5f;
@@ -224,8 +230,8 @@ public class SpherePlayer : MonoBehaviour
         if (isKeyEnabled && sc.isGamblingMode && Input.GetKey(KeyCode.LeftShift))
         {
             ChangeMaterial(draggedMaterial);
-            kDragForce =10.0f;
-            sc.GivePlayerDamage(0.1f);
+            kDragForce = 10.0f;
+            sc.GivePlayerDamage(dpsDrag);
         } else {
             ChangeMaterial(undraggedMaterial);
         }

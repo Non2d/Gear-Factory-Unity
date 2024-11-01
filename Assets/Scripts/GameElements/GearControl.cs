@@ -15,6 +15,8 @@ public class GearControl : MonoBehaviour
     private int divisions; //param
     private float originAngle; //param
 
+    [SerializeField] private Vector3 NumScale = new Vector3(1.0f, 1.0f, 1.0f);
+
     private IngameSceneController sc ;
 
     // Start is called before the first frame update
@@ -47,7 +49,8 @@ public class GearControl : MonoBehaviour
             float yPosition = radius * Mathf.Sin(angle);
             textObj.transform.localPosition = new Vector3(xPosition / parentScale.x, yPosition / parentScale.y, height / parentScale.z);
             textObj.transform.localRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f) * Quaternion.AngleAxis(angleDegree - 90.0f, Vector3.up) * Quaternion.Euler(10.0f, 0.0f, 0.0f);
-
+            textObj.transform.localScale = NumScale;
+            
             textComponents.Add(text);
         }
     }

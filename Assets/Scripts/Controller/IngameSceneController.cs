@@ -26,7 +26,6 @@ public class IngameSceneController : BaseSceneController
 
     [SerializeField] private GameObject menu;
     [SerializeField] private GameObject gameOverMenu;
-
     [SerializeField] private GameObject SpawnPoint;
 
     // events
