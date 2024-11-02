@@ -45,10 +45,11 @@ public class ChildTriggerHandler : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log("ChildTriggerHandler: OnTriggerEnter()");
         if (other.CompareTag("Player"))
         {
             // 親の関数を呼び出す
-            parentScript.OnPlayerEnterChildTrigger();
+            parentScript.OnPlayerEnterChildTrigger(other);
         }
     }
 }

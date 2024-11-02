@@ -6,17 +6,18 @@ using System;
 public class SO_GearFactory : ScriptableObject
 {
     //initial values
-    [SerializeField]
-    private int initPlayerLife;
+    public int initPlayerLife;
 
-    [SerializeField]
-    private float initPlayerEnergy;
+    public float initPlayerEnergy;
     
     public float PlayerEnergyMax;
 
     //variable values
     public int playerLife;
     public float playerEnergy;
+
+    public string AnimStateChase = "CB_Chase";
+    public string AnimConditionAttack = "IsAttacking";
 
     public void Initialize()
     {

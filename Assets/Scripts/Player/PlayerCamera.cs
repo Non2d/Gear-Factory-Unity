@@ -7,8 +7,8 @@ public class PlayerCamera : MonoBehaviour
     private GameObject player;
     private Vector3 offset;
     public float mouseSensitivity;
-    private float pitch = 30.0f;
-    private float yaw = 0.0f;
+    private float pitch = -10.0f; //param
+    private float yaw;
     public float zoomSpeed; // マウスホイールのズーム速度
     public float minZoom; // 最小ズーム距離
     public float maxZoom; // 最大ズーム距離
@@ -24,8 +24,11 @@ public class PlayerCamera : MonoBehaviour
             return;
         }
         offset = transform.position - this.player.transform.position;
+
         offset = offset.normalized * defaultZoom; // デフォルトのズーム距離を15に設定
         Cursor.lockState = CursorLockMode.Locked; // Lock the cursor to the center of the screen
+
+        yaw = this.player.transform.eulerAngles.y;
     }
 
     // Update is called once per frame
@@ -40,7 +43,7 @@ public class PlayerCamera : MonoBehaviour
             // Update yaw and pitch
             yaw += mouseX;
             pitch -= mouseY;
-            pitch = Mathf.Clamp(pitch, -90f, 90f); // Limit pitch to avoid flipping
+            pitch = Mathf.Clamp(pitch, -60f, 60f); // param。普通のステージでは-25~60, 宇宙ステージでは
 
             // Get mouse scroll input for zoom
             float scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -73,5 +76,15 @@ public class PlayerCamera : MonoBehaviour
     public Vector3 GetForwardDirection()
     {
         return transform.forward;
+    }
+
+    public float GetFov()
+    {
+        return Camera.main.fieldOfView;
+    }
+
+    public void SetFov(float fov)
+    {
+        Camera.main.fieldOfView = fov;
     }
 }

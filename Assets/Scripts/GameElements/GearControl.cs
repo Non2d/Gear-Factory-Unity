@@ -1,23 +1,30 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Linq;
+
+using UnityEngine.SceneManagement;
 
 public class GearControl : MonoBehaviour
 {
+    [SerializeField] private string nextSceneName;
+
     public float gearSpeed = 20.0f;
-
     private List<TextMeshPro> textComponents = new List<TextMeshPro>();
-
-    [SerializeField]
-    private GameObject test_player;
 
     private int divisions; //param
     private float originAngle; //param
 
+    [SerializeField] private Vector3 NumScale = new Vector3(1.0f, 1.0f, 1.0f);
+
+    private IngameSceneController sc ;
+
     // Start is called before the first frame update
     void Start()
     {
+        sc = FindObjectOfType<IngameSceneController>();
+        transform.Rotate(Vector3.forward, 120.0f);
+
         divisions = 18;
         originAngle = 5.0f;
 
@@ -42,7 +49,8 @@ public class GearControl : MonoBehaviour
             float yPosition = radius * Mathf.Sin(angle);
             textObj.transform.localPosition = new Vector3(xPosition / parentScale.x, yPosition / parentScale.y, height / parentScale.z);
             textObj.transform.localRotation = Quaternion.Euler(90.0f, 0.0f, 0.0f) * Quaternion.AngleAxis(angleDegree - 90.0f, Vector3.up) * Quaternion.Euler(10.0f, 0.0f, 0.0f);
-
+            textObj.transform.localScale = NumScale;
+            
             textComponents.Add(text);
         }
     }
@@ -55,13 +63,16 @@ public class GearControl : MonoBehaviour
         // Debug.Log(GetLocalDirectionToPlayer());
     }
 
-    float GetLocalDirectionToPlayer()
+    /// <summary>
+    /// ゲームオブジェクトから見たプレイヤーの方向を取得する
+    /// </summary>
+    float GetLocalDirectionToPlayer(GameObject player)
     {
         // 現在のオブジェクトの位置を基準とする
         Vector3 currentPosition = transform.position;
 
         // test_playerの位置を取得
-        Vector3 playerPosition = test_player.transform.position;
+        Vector3 playerPosition = player.transform.position;
 
         // 方向ベクトルを計算
         Vector3 direction = playerPosition - currentPosition;
@@ -83,6 +94,11 @@ public class GearControl : MonoBehaviour
         return angle;
     }
 
+    /// <summary>
+    /// プレイヤーがどのポケットに入ったかを計算する
+    /// </summary>
+    /// <param name="localDirection">ギアオブジェクトから見たプレイヤーの角度</param>
+    /// <returns></returns>
     int GetPocketLanded(float localDirection)
     {
         // -10から始まる範囲にシフト
@@ -94,11 +110,26 @@ public class GearControl : MonoBehaviour
         return pocketNumber;
     }
 
-
-    public void OnPlayerEnterChildTrigger()
+    /// <summary>
+    /// ポケット入賞時の処理。プレイヤーがChildTriggerに入ったときに発火する。
+    /// </summary>
+    /// <param name="other"></param>
+    public void OnPlayerEnterChildTrigger(Collider other) //TagがPlayerのとき、ChildTriggerHandlerから呼び出される
     {
-        Debug.Log(GetLocalDirectionToPlayer());
-        Debug.Log(GetPocketLanded(GetLocalDirectionToPlayer()));
+        Debug.Log(GetLocalDirectionToPlayer(other.gameObject));
+        Debug.Log(GetPocketLanded(GetLocalDirectionToPlayer(other.gameObject)));
 
+        int pocketNumber = GetPocketLanded(GetLocalDirectionToPlayer(other.gameObject));
+
+        if (new List<int> { 2,4,6,8,10,12,14,16,18 }.Contains(pocketNumber))
+        {
+            Debug.Log("Bonus!");
+            SceneManager.LoadScene(nextSceneName);
+        }
+        else
+        {
+            // Set player's energy to 0
+            sc.HandlePlayerDeath();
+        }
     }
 }
