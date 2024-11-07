@@ -36,8 +36,9 @@ public class PlanetLocalGravityController : MonoBehaviour
             float distance = (transform.position - rb.position).magnitude;
 
             Vector3 SpringForce = k * distance * directionToCenter;
+            Vector3 GravityForce = new Vector3(SpringForce.x, 3*SpringForce.y, SpringForce.z);
 
-            rb.AddForce(SpringForce, ForceMode.Force);
+            rb.AddForce(GravityForce, ForceMode.Force);
         }
     }
 }

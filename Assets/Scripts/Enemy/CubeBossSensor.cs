@@ -33,9 +33,9 @@ public class CubeBossSensor : MonoBehaviour
                     {
                         bossController.SetState(CubeBossController.EnemyState.Attack);
                     }
-                    else if (distance <= searchArea.radius && distance >= searchArea.radius * 0.5f && bossController.state == CubeBossController.EnemyState.Idle)
+                    else if (distance <= searchArea.radius && distance >= searchArea.radius * 0.5f && bossController.GetState() == CubeBossController.EnemyState.Idle)
                     {
-                        bossController.SetState(CubeBossController.EnemyState.Chase, target.transform); // センサーに入ったプレイヤーをターゲットに設定して、追跡状態に移行する。
+                        bossController.SetState(CubeBossController.EnemyState.Chase); // あまり良くないけど，playerの参照はCubeBossControllerで持っているので，ここでは引数を渡さない
                     }
                 }
             }
@@ -44,7 +44,6 @@ public class CubeBossSensor : MonoBehaviour
                 bossController.SetState(CubeBossController.EnemyState.Idle);
             }
         }
-        Debug.Log(bossController.GetState());
     }
 
 #if UNITY_EDITOR

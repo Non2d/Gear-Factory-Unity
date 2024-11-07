@@ -114,8 +114,6 @@ public class SpherePlayer : MonoBehaviour
 
     void Update()
     {
-        // Debug.Log(LatestVelocityDirection());
-
         //Playerカメラから進行方向を取得
         if (playerCamera != null)
         {
@@ -123,7 +121,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         //Spaceでジャンプ
-        if (isKeyEnabled && !sc.isGamblingMode && Input.GetKeyDown(KeyCode.Space) && canJump)
+        if (isKeyEnabled && Input.GetKeyDown(KeyCode.Space) && canJump)
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット

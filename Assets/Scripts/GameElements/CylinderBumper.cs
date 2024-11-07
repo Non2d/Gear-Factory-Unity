@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class CylinderBumper : MonoBehaviour
 {
-    public float springForce = 1000f; // バネの力
-    public float springLength = 0.2f; // バネの自然長
+    public float bumperForce = 10.0f;
+    private Vector3 previousVelocity;
+    private float critRate = 1.0f;
 
     void Update()
     {
-        
+        transform.Rotate(Vector3.up, 50.0f);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -20,28 +21,39 @@ public class CylinderBumper : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             // Playerタグを持つオブジェクトとの衝突時の処理をここに追加
-            Debug.Log("Playerと衝突しました: " + other.name);
+            // Debug.Log("Playerと衝突しました: " + other.name);
 
             // 衝突したオブジェクトのRigidbodyを取得
             Rigidbody rb = other.GetComponent<Rigidbody>();
 
             // 自身のワールド座標を取得
             Vector3 bumperWorldPosition = transform.position;
-            Debug.Log("Bumperのワールド座標: " + bumperWorldPosition);
+            // Debug.Log("Bumperのワールド座標: " + bumperWorldPosition);
 
             // 衝突したオブジェクトのワールド座標を取得
             Vector3 otherWorldPosition = other.transform.position;
-            Debug.Log("Playerのワールド座標: " + otherWorldPosition);
+            // Debug.Log("Playerのワールド座標: " + otherWorldPosition);
 
-            // バネの自然長を超えた場合に内側に力を適用
-            float distance = Vector3.Distance(bumperWorldPosition, otherWorldPosition);
-            if (distance > springLength)
+            // バンパーからプレイヤーへの方向ベクトルを計算
+            Vector3 direction = otherWorldPosition - bumperWorldPosition;
+
+            Debug.Log(Mathf.Abs(Vector3.Dot(-direction, previousVelocity) / (direction.magnitude * previousVelocity.magnitude)));
+            Debug.Log(Mathf.Abs(Vector3.Dot(-direction, previousVelocity) / (direction.magnitude * previousVelocity.magnitude))<0.5f);
+
+            // 会心判定
+            if (Mathf.Abs(Vector3.Dot(-direction, previousVelocity) / (direction.magnitude * previousVelocity.magnitude))<0.5f)
             {
-                Vector3 direction = (bumperWorldPosition - otherWorldPosition).normalized;
-                float forceMagnitude = springForce * (distance - springLength);
-                Vector3 springForceVector = direction * forceMagnitude;
-                rb.AddForce(springForceVector, ForceMode.Acceleration);
+                Debug.Log("CRITICAL HIT!");
+                critRate = 2.0f;
             }
+
+            //水平方向に弾く
+            direction.y = 0; // 水平方向に限定
+            direction = direction.normalized;
+            rb.AddForce(critRate*bumperForce*direction, ForceMode.Impulse);
+
+            //直前のフレームの速度
+            previousVelocity = rb.velocity;
         }
     }
 }
