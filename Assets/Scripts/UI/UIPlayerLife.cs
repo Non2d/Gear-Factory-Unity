@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using UnityEditor.SearchService;
 
 public class UIPlayerLife : MonoBehaviour
 {
