@@ -16,6 +16,8 @@ MonoBehaviour:
   initPlayerEnergy: 1000
   PlayerEnergyMax: 1000
   playerLife: 3
-  playerEnergy: 100
+  playerEnergy: 949.5
   AnimStateChase: CB_Chase
   AnimConditionAttack: IsAttacking
+  cubeBossHpMax: 1000
+  cubeBossHp: 1000

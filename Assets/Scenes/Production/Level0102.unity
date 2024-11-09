@@ -1306,7 +1306,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d657406c338a42478945ded1da40f7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nextSceneName: Level0101
+  nextSceneName: Level0103
+  isFinalGoal: 0
 --- !u!1001 &1782387331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1778,7 +1779,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3164770342455334732, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_Interactable
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3405654266475601847, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_Enabled

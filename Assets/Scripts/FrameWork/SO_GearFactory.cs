@@ -19,9 +19,13 @@ public class SO_GearFactory : ScriptableObject
     public string AnimStateChase = "CB_Chase";
     public string AnimConditionAttack = "IsAttacking";
 
+    public float cubeBossHpMax;
+    public float cubeBossHp;
+
     public void Initialize()
     {
         playerLife = initPlayerLife;
         playerEnergy = initPlayerEnergy;
+        cubeBossHp = cubeBossHpMax;
     }
 }

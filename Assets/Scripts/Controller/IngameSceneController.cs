@@ -19,6 +19,7 @@ public class IngameSceneController : BaseSceneController
 
     // ギャンブルモード化の設定
     public bool isGamblingMode = false;
+    public float dpsMultiplier = 1.0f;
 
     //UIのcanvasGroupを設定
     private CanvasGroup CGmenu;
@@ -56,6 +57,7 @@ public class IngameSceneController : BaseSceneController
     private void InitializeGame()
     {
         sp = player.GetComponent<SpherePlayer>();
+        sp.dpsMultiplier = dpsMultiplier; // ダメージ量をステージごとに調整
         gf.Initialize();
         RespawnPlayer();
 

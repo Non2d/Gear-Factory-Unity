@@ -1,14 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIPlayerEnergy : MonoBehaviour
+public class UIBossHitPoint : MonoBehaviour
 {
     [SerializeField]
     private SO_GearFactory gearFactory;
-
     private Slider slider;
     private Image fillImage;
-
     private void Awake()
     {
         slider = GetComponent<Slider>();
@@ -26,14 +24,14 @@ public class UIPlayerEnergy : MonoBehaviour
                 Debug.LogError("Fill Image component not found!");
             }
         }
-
     }
 
-    public void UpdatePlayerEnergyGauge()
+    // Update is called once per frame
+    public void UpdateGauge()
     {
         if (gearFactory != null && slider != null)
         {
-            slider.value = gearFactory.playerEnergy;
+            slider.value = gearFactory.cubeBossHp;
 
             // スライダーの値が0になった場合、Fill部分を非表示に
             if (slider.value <= 0 && fillImage != null)
