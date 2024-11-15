@@ -2312,6 +2312,7 @@ MonoBehaviour:
   explosionEffect: {fileID: 1014532132}
   explodeAudio: {fileID: 1896508025}
   explodeClip: {fileID: 8300000, guid: 75bea8eb788d9f9499941ee2c13aecde, type: 3}
+  bossFaceObj: {fileID: 587878592}
 --- !u!95 &1896508021
 Animator:
   serializedVersion: 5

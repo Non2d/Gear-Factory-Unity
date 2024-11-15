@@ -4,10 +4,12 @@ using TMPro;
 using System.Linq;
 
 using UnityEngine.SceneManagement;
+using System;
 
 public class GearControl : MonoBehaviour
 {
     [SerializeField] private string nextSceneName;
+    [SerializeField] private bool isDisabledWin = false;
 
     public float gearSpeed = 20.0f;
     private List<TextMeshPro> textComponents = new List<TextMeshPro>();
@@ -61,6 +63,11 @@ public class GearControl : MonoBehaviour
         transform.Rotate(Vector3.forward, gearSpeed * Time.deltaTime);
 
         // Debug.Log(GetLocalDirectionToPlayer());
+    }
+
+    public void SetGearSpeed(float speed)
+    {
+        gearSpeed = speed;
     }
 
     /// <summary>
@@ -124,7 +131,10 @@ public class GearControl : MonoBehaviour
         if (new List<int> { 2,4,6,8,10,12,14,16,18 }.Contains(pocketNumber))
         {
             Debug.Log("Bonus!");
-            SceneManager.LoadScene(nextSceneName);
+            if(!isDisabledWin)
+            {
+                SceneManager.LoadScene(nextSceneName);
+            }
         }
         else
         {

@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class CubeBossAnimReceiver : MonoBehaviour
 {
@@ -14,10 +14,11 @@ public class CubeBossAnimReceiver : MonoBehaviour
     [SerializeField] private AudioSource explodeAudio;
     [SerializeField] private AudioClip explodeClip;
 
-
+    [SerializeField] private GameObject bossFaceObj;
 
     private UIBossHitPoint UIbossHitPointGauge;
     private CubeBossController bossCtrl;
+    private TextMeshPro bossFace;
 
     void Start()
     {
@@ -26,6 +27,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
         UIbossHitPointGauge = BossHitPointGauge.GetComponent<UIBossHitPoint>();
         UIbossHitPointGauge.UpdateGauge();
         bossCtrl = CubeBossBase.GetComponent<CubeBossController>();
+        bossFace = bossFaceObj.GetComponent<TextMeshPro>();
 
         if (explodeAudio != null)
         {
@@ -48,6 +50,14 @@ public class CubeBossAnimReceiver : MonoBehaviour
         gf.cubeBossHp -= damage;
         UIbossHitPointGauge.UpdateGauge();
 
+        if (gf.cubeBossHp <= 500)
+        {
+            if (bossFace != null)
+            {
+                bossFace.text = ":(";
+            }
+        }
+
         if (gf.cubeBossHp <= 0)
         {
             Death();
@@ -60,6 +70,10 @@ public class CubeBossAnimReceiver : MonoBehaviour
         explosionEffect.Play();
         Goal.SetActive(true);
         DisableCubeBossModel();
+        if (bossFace != null)
+        {
+            bossFace.text = "x(";
+        }
         Destroy(BossHitPointGauge);
     }
 
@@ -102,7 +116,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
                     {
                         reflectForce = 10;
                     }
-                    int damage = (int)(100 * rb.velocity.magnitude / reflectForce);
+                    int damage = (int)(40 * rb.velocity.magnitude / reflectForce);
                     GetDamage(damage);
                     Debug.Log("Damage: " + (int)(rb.velocity.magnitude / reflectForce) + "Velocity: " + rb.velocity.magnitude + "ReflectForce: " + reflectForce);
                     rb.AddForce(reflectForce * reflectVelocity, ForceMode.Impulse);

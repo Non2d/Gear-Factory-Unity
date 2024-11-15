@@ -464,7 +464,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 981e5a47e4074b849bc764536f3bf711, type: 3}
+  m_Texture: {fileID: 2800000, guid: 879744084a06bcd49ac24ef783a7b1d3, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -806,7 +806,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 465.7, y: -225.3}
+  m_AnchoredPosition: {x: 1123.69, y: -475.8}
   m_SizeDelta: {x: 852.6041, y: 147.5065}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1702125503
@@ -844,8 +844,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4287138047
-  m_fontColor: {r: 1, g: 0.5330188, b: 0.5330188, a: 1}
+    rgba: 4278190335
+  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
