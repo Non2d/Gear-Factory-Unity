@@ -1671,6 +1671,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextSceneName: Level0102
+  isFinalGoal: 0
 --- !u!1 &1544848715
 GameObject:
   m_ObjectHideFlags: 0
