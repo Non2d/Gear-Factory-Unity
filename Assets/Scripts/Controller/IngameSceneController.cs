@@ -50,7 +50,20 @@ public class IngameSceneController : BaseSceneController
     {
         InitializeGame();
     }
-    
+
+    public void Update()
+    {
+        for (int i = 1; i <= 6; i++)
+        {
+            KeyCode keyCode = KeyCode.Alpha0 + i;
+            if (Input.GetKeyDown(keyCode))
+            {
+                CheatLoadScene(i);
+                break; //小さい数字優先
+            }
+        }
+    }
+
     /// <summary>
     /// ゲームの初期化
     /// </summary>
@@ -136,7 +149,7 @@ public class IngameSceneController : BaseSceneController
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
     }
-    
+
     /// <summary>
     /// ゲームを再開する。残機のUIへの通知も行う
     /// </summary>
@@ -236,5 +249,15 @@ public class IngameSceneController : BaseSceneController
 
         player.transform.position = SpawnPoint.transform.position;
         player.transform.rotation = SpawnPoint.transform.rotation;
+    }
+
+
+    /// <summary>
+    /// プレゼン用のチート関数
+    /// </summary>
+    public void CheatLoadScene(int sceneIndex)
+    {
+        string nextSceneName = "Level010" +  sceneIndex.ToString();
+        SceneManager.LoadScene(sceneIndex);
     }
 }
