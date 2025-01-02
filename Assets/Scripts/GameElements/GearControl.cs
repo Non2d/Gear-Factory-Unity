@@ -21,6 +21,8 @@ public class GearControl : MonoBehaviour
 
     private IngameSceneController sc ;
 
+    [SerializeField] private SO_GearFactory gf;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -134,6 +136,8 @@ public class GearControl : MonoBehaviour
             if(!isDisabledWin)
             {
                 SceneManager.LoadScene(nextSceneName);
+                string currentSceneName = SceneManager.GetActiveScene().name;
+                gf.endTimes[currentSceneName] = DateTime.Now;
             }
         }
         else

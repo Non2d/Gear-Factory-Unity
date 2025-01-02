@@ -742,6 +742,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 637587026}
     m_Modifications:
     - target: {fileID: 4178728731034095428, guid: df362742a7c2f4b4b91acd1e05c68cc7, type: 3}
+      propertyPath: gf
+      value: 
+      objectReference: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
+    - target: {fileID: 4178728731034095428, guid: df362742a7c2f4b4b91acd1e05c68cc7, type: 3}
       propertyPath: NumScale.x
       value: 0.0005
       objectReference: {fileID: 0}
@@ -1864,7 +1868,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3164770342455334732, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_Interactable
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3405654266475601847, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_Enabled
@@ -2023,6 +2027,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 637587026}
     m_Modifications:
+    - target: {fileID: 4178728731034095428, guid: df362742a7c2f4b4b91acd1e05c68cc7, type: 3}
+      propertyPath: gf
+      value: 
+      objectReference: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
     - target: {fileID: 4178728731034095428, guid: df362742a7c2f4b4b91acd1e05c68cc7, type: 3}
       propertyPath: NumScale.x
       value: 0.0005
@@ -2283,9 +2291,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 4aac98aef254ecf429643db51adb8f72, type: 2}
     - target: {fileID: 8063874163559460562, guid: be1290e1b8780b74abe9942fe29b62b4, type: 3}
+      propertyPath: gf
+      value: 
+      objectReference: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
+    - target: {fileID: 8063874163559460562, guid: be1290e1b8780b74abe9942fe29b62b4, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 1783713747}
+    - target: {fileID: 8063874163559460562, guid: be1290e1b8780b74abe9942fe29b62b4, type: 3}
+      propertyPath: mouseSensitivity
+      value: 500
+      objectReference: {fileID: 0}
     - target: {fileID: 8063874163559460562, guid: be1290e1b8780b74abe9942fe29b62b4, type: 3}
       propertyPath: playerSmoothTime
       value: 100

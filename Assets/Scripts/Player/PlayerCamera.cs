@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
 {
+    [SerializeField] private SO_GearFactory gf;
     private GameObject player;
     private GameObject target;
     private Vector3 offset;
-    public float mouseSensitivity;
     private float pitch = -10.0f; //param
     private float yaw;
     private float roll;
-    public float zoomSpeed; // マウスホイールのズーム速度
+    private float mouseSensitivity;
+    private float zoomSpeed; // マウスホイールのズーム速度
     public float minZoom; // 最小ズーム距離
     public float maxZoom; // 最大ズーム距離
     public float defaultZoom; // デフォルトズーム距離
@@ -20,6 +21,8 @@ public class PlayerCamera : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        zoomSpeed = gf.zoomSpeed;
+        mouseSensitivity = gf.mouseSensitivity;
         player = GameObject.Find("SpherePlayer");
         target = player;
         if (player == null)

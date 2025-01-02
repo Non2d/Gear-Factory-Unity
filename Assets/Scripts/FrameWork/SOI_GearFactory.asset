@@ -16,8 +16,23 @@ MonoBehaviour:
   initPlayerEnergy: 1000
   PlayerEnergyMax: 1000
   playerLife: 3
-  playerEnergy: 949.5
+  playerEnergy: 1000
   AnimStateChase: CB_Chase
   AnimConditionAttack: IsAttacking
   cubeBossHpMax: 1000
   cubeBossHp: 1000
+  mouseSensitivity: 500
+  mouseSensitivityMax: 900
+  mouseSensitivityMin: 100
+  zoomSpeed: 10
+  zoomSpeedMax: 15
+  zoomSpeedMin: 5
+  totalDeaths: 0
+  totalUsedEnergy: 0
+  sceneNames:
+  - Level0101
+  - Level0102
+  - Level0103
+  - Level0104
+  - Level0105
+  - Level0106

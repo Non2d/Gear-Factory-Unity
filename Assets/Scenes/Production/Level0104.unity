@@ -1927,6 +1927,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSceneName: Level0105
   isFinalGoal: 0
+  gf: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
 --- !u!1001 &1426213699
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2036,6 +2037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSceneName: Level0101
   isFinalGoal: 0
+  gf: {fileID: 0}
 --- !u!1 &1645768340
 GameObject:
   m_ObjectHideFlags: 0
@@ -2667,7 +2669,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3164770342455334732, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_Interactable
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3405654266475601847, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_Enabled
@@ -3372,6 +3374,10 @@ PrefabInstance:
       propertyPath: undraggedMaterial
       value: 
       objectReference: {fileID: 2100000, guid: 4aac98aef254ecf429643db51adb8f72, type: 2}
+    - target: {fileID: 8063874163559460562, guid: be1290e1b8780b74abe9942fe29b62b4, type: 3}
+      propertyPath: gf
+      value: 
+      objectReference: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

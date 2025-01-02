@@ -1391,6 +1391,10 @@ PrefabInstance:
       propertyPath: undraggedMaterial
       value: 
       objectReference: {fileID: 2100000, guid: 4aac98aef254ecf429643db51adb8f72, type: 2}
+    - target: {fileID: 4440383894265450895, guid: 0507ca278476d2c4993a48bb3e503b57, type: 3}
+      propertyPath: gf
+      value: 
+      objectReference: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
     - target: {fileID: 6236886063782070737, guid: 0507ca278476d2c4993a48bb3e503b57, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1672,6 +1676,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nextSceneName: Level0102
   isFinalGoal: 0
+  gf: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
 --- !u!1 &1544848715
 GameObject:
   m_ObjectHideFlags: 0

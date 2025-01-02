@@ -111,7 +111,7 @@ Material:
     - _AO: 2.4
     - _AtmosphereThickness: 1
     - _BaseLight: 0.35
-    - _BlurSize: 0.5
+    - _BlurSize: 0.7
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5

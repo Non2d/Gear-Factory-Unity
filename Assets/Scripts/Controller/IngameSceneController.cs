@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Linq;
 
 public class IngameSceneController : BaseSceneController
 {
@@ -49,10 +50,28 @@ public class IngameSceneController : BaseSceneController
     public void Start()
     {
         InitializeGame();
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        if (currentSceneName == "Level0101")
+        {
+            gf.startTimes.Clear();
+            gf.endTimes.Clear();
+            gf.totalDeaths = 0;
+            gf.totalUsedEnergy = 0;
+        }
+        if (!gf.startTimes.ContainsKey(currentSceneName)){
+            gf.startTimes.Add(currentSceneName, DateTime.Now);
+        }
     }
 
     public void Update()
     {
+        // Dictionaryの内容を文字列に変換してログに出力
+        // string startTimesString = string.Join(", ", gf.startTimes.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+        // Debug.Log("Start Times: " + startTimesString);
+        string endTimesString = string.Join(", ", gf.endTimes.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+        Debug.Log("End Times: " + endTimesString);
+
+#if UNITY_EDITOR
         for (int i = 1; i <= 6; i++)
         {
             KeyCode keyCode = KeyCode.Alpha0 + i;
@@ -62,6 +81,7 @@ public class IngameSceneController : BaseSceneController
                 break; //小さい数字優先
             }
         }
+#endif
     }
 
     /// <summary>
@@ -171,6 +191,7 @@ public class IngameSceneController : BaseSceneController
     public void GivePlayerDamage(float damage)
     {
         gf.playerEnergy -= damage;
+        gf.totalUsedEnergy += damage; // 即死の場合はエネルギー消費とはみなさない
         playerEnergyGauge.UpdatePlayerEnergyGauge();
 
         if (gf.playerEnergy <= 0)
@@ -186,6 +207,8 @@ public class IngameSceneController : BaseSceneController
     {
         if (isDead) return; // Delay中に再度死亡処理が呼ばれるのを防ぐ
         isDead = true;
+
+        gf.totalDeaths++;
 
         if (gf.playerLife <= 0)
         {
@@ -257,7 +280,7 @@ public class IngameSceneController : BaseSceneController
     /// </summary>
     public void CheatLoadScene(int sceneIndex)
     {
-        string nextSceneName = "Level010" +  sceneIndex.ToString();
+        string nextSceneName = "Level010" + sceneIndex.ToString();
         SceneManager.LoadScene(sceneIndex);
     }
 }

@@ -29,4 +29,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Production/ClearResult.unity
     guid: 0841b3a18f28f4342a1ea7df91920832
+  - enabled: 1
+    path: Assets/Scenes/Production/Ranking.unity
+    guid: 609814a6d15166f4483d129c1c95a891
+  - enabled: 1
+    path: Assets/Scenes/Production/Settings.unity
+    guid: d3d448eec834ee74aa928a1fc461a383
   m_configObjects: {}
