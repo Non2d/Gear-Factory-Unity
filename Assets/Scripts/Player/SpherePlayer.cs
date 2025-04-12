@@ -275,10 +275,6 @@ public class SpherePlayer : MonoBehaviour
         {
             canJump = true; // ジャンプ可能にする
         }
-        else if (collision.gameObject.tag == "Boss")
-        {
-            canJump = true;
-        }
 
         ApplyBoundForce(collision);
     }
@@ -301,14 +297,6 @@ public class SpherePlayer : MonoBehaviour
 
             // 接面＝法線の垂直方向の成分。接面=tangent.
             Vector3 tangentComponent = Vector3.zero;
-
-            // // 角度が30度以上の場合に垂直方向の成分を追加
-            // float angle = Vector3.Angle(normal, Vector3.up);
-            // if (angle >= 30.0f)
-            // {
-            //     float eTangent = 0.9f; //param
-            //     tangentComponent = eTangent*(reflect - normalComponent); // 垂直方向の成分を少しだけ追加
-            // }
 
             // 法線方向と垂直方向の成分を足し合わせる
             Vector3 finalComponent = normalComponent + tangentComponent;

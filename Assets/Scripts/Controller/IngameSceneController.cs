@@ -69,7 +69,7 @@ public class IngameSceneController : BaseSceneController
         // string startTimesString = string.Join(", ", gf.startTimes.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
         // Debug.Log("Start Times: " + startTimesString);
         string endTimesString = string.Join(", ", gf.endTimes.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
-        Debug.Log("End Times: " + endTimesString);
+        // Debug.Log("End Times: " + endTimesString);
 
 // エディタ上でのみ有効なデバッグチート機能
 #if UNITY_EDITOR 
@@ -115,6 +115,7 @@ public class IngameSceneController : BaseSceneController
     }
 
     //UI制御関連
+    
     /// <summary>
     /// ポーズ処理
     /// </summary>

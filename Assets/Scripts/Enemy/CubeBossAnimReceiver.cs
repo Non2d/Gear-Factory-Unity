@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class CubeBossAnimReceiver : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class CubeBossAnimReceiver : MonoBehaviour
     [SerializeField] private AudioClip explodeClip;
 
     [SerializeField] private GameObject bossFaceObj;
+    [SerializeField] private GameObject bossFacesObj; // 2つ目のボス顔オブジェクト
 
     private UIBossHitPoint UIbossHitPointGauge;
     private CubeBossController bossCtrl;
     private TextMeshPro bossFace;
+    private float previousSpeed = 0f; // 前回の速度を保存する変数
 
     void Start()
     {
@@ -66,15 +69,27 @@ public class CubeBossAnimReceiver : MonoBehaviour
 
     void Death()
     {
-        explodeAudio.Play();
-        explosionEffect.Play();
-        Goal.SetActive(true);
         DisableCubeBossModel();
+        StartCoroutine(WaitForAllEnd(explodeAudio, explosionEffect));
         if (bossFace != null)
         {
             bossFace.text = "x(";
         }
         Destroy(BossHitPointGauge);
+    }
+
+    IEnumerator WaitForAllEnd(AudioSource audio, ParticleSystem ps)
+    {
+        audio.Play();
+        ps.Play();
+
+        while (audio.isPlaying || ps.IsAlive())
+        {
+            yield return null;
+        }
+
+        Goal.SetActive(true);
+        CubeBossBase.SetActive(false);
     }
 
     public void OnAttackAnimEnd()
@@ -103,25 +118,29 @@ public class CubeBossAnimReceiver : MonoBehaviour
 
                 // 力を加える
                 Rigidbody rb = collision.rigidbody;
-                float reflectForce = 5;
+                float reflectForce = 0.6f;
 
                 if (rb != null)
                 {
                     if (contactFace == FaceDirection.Back)
                     {
-                        reflectForce = 2;
-
+                        reflectForce = 0.2f;
                     }
-                    else if (contactFace == FaceDirection.Up)
+                    else if (contactFace == FaceDirection.Forward)
                     {
-                        reflectForce = 10;
+                        reflectForce = 0.9f;
                     }
-                    int damage = (int)(40 * rb.velocity.magnitude / reflectForce);
+                    int damage = (int)(40 * (previousSpeed - rb.velocity.magnitude) / reflectForce);
                     GetDamage(damage);
-                    Debug.Log("Damage: " + (int)(rb.velocity.magnitude / reflectForce) + "Velocity: " + rb.velocity.magnitude + "ReflectForce: " + reflectForce);
+                    Debug.Log($"Damage: {damage}, speed: {rb.velocity.magnitude}, previousSpeed: {previousSpeed}");
                     rb.AddForce(reflectForce * reflectVelocity, ForceMode.Impulse);
                     bossCtrl.SetState(CubeBossController.EnemyState.Chase);
                 }
+            }
+            
+            if (collision.relativeVelocity.magnitude > 0.01f)
+            {
+                previousSpeed = collision.relativeVelocity.magnitude; // 現在の速度を保存
             }
         }
     }
@@ -188,6 +207,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
             GameObject cubeBossModel = cubeBossModelTransform.gameObject;
 
             // Rendererを無効化
+            bossFacesObj.SetActive(false);
             var renderers = cubeBossModel.GetComponents<Renderer>();
             foreach (var renderer in renderers)
             {
