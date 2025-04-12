@@ -1,6 +1,7 @@
-using System.Net.Http;
-using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [System.Serializable]
 public class PlayerResult
@@ -22,33 +23,39 @@ public class RankingController : BaseSceneController
     [SerializeField] private Transform rankViewContent;
     [SerializeField] private GameObject rankViewPrefab;
 
-    async void Start()
+    void Start()
     {
-        var results = await GetRanking();
-        foreach (var result in results)
-        {
-            string readableTime = $"{(int)result.total_time / 60:D2}:{(int)result.total_time % 60:D2}";
-            SpawnText(result.player_name);
-            SpawnText(readableTime);
-            SpawnText(result.deaths.ToString());
-            SpawnText(result.total_energy.ToString());
-            // Debug.Log($"Player: {result.player_name}, Total Time: {readableTime}, Deaths: {result.deaths}, Total Energy: {result.total_energy}");
-        }
+        StartCoroutine(GetRanking());
     }
 
-    public async Task<PlayerResult[]> GetRanking()
+    private IEnumerator GetRanking()
     {
-        // string apiUrl = "http://localhost:7791/simple-results";
         string apiUrl = "https://vps4.nkmr.io/gear-factory/v1/simple-results";
 
-        using (var client = new HttpClient())
+        using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
         {
-            var response = await client.GetAsync(apiUrl);
-            var json = await response.Content.ReadAsStringAsync();
+            yield return request.SendWebRequest();
 
-            // JSONをデシリアライズ
-            PlayerResultWrapper wrapper = JsonUtility.FromJson<PlayerResultWrapper>(json);
-            return wrapper.results;
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError(request.error);
+            }
+            else
+            {
+                Debug.Log("Response: " + request.downloadHandler.text);
+
+                // JSONをデシリアライズ
+                PlayerResultWrapper wrapper = JsonUtility.FromJson<PlayerResultWrapper>(request.downloadHandler.text);
+                foreach (var result in wrapper.results)
+                {
+                    string readableTime = $"{(int)result.total_time / 60:D2}:{(int)result.total_time % 60:D2}";
+                    SpawnText(result.player_name);
+                    SpawnText(readableTime);
+                    SpawnText(result.deaths.ToString());
+                    SpawnText(result.total_energy.ToString());
+                    // Debug.Log($"Player: {result.player_name}, Total Time: {readableTime}, Deaths: {result.deaths}, Total Energy: {result.total_energy}");
+                }
+            }
         }
     }
 

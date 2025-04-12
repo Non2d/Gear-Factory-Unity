@@ -548,6 +548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resultTime: {fileID: 1702125501}
   totalResults: {fileID: 1466942340}
+  genAiAnalysis: {fileID: 990075519}
   gf: {fileID: 11400000, guid: 0ef9af1e1dac6c84891ae22955cbe1df, type: 2}
   playerNameInput: {fileID: 1225653500}
 --- !u!1 &526270164
@@ -1113,10 +1114,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'To improve, focus on reducing energy usage in Stages 2-5, particularly
-    in the dynamic gamble stage (Stage 5), as these stages seem to be consuming the
-    most energy based on the clear times. Additionally, work on minimizing deaths
-    to optimize your overall performance.
+  m_text: 'Now analysing...
 
 '
   m_isRightToLeft: 0

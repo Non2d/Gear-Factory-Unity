@@ -22,8 +22,8 @@ MonoBehaviour:
   cubeBossHpMax: 1000
   cubeBossHp: 1000
   mouseSensitivity: 500
-  mouseSensitivityMax: 900
-  mouseSensitivityMin: 100
+  mouseSensitivityMax: 990
+  mouseSensitivityMin: 10
   zoomSpeed: 10
   zoomSpeedMax: 15
   zoomSpeedMin: 5

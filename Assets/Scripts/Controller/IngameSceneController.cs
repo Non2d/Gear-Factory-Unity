@@ -71,7 +71,8 @@ public class IngameSceneController : BaseSceneController
         string endTimesString = string.Join(", ", gf.endTimes.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
         Debug.Log("End Times: " + endTimesString);
 
-#if UNITY_EDITOR
+// エディタ上でのみ有効なデバッグチート機能
+#if UNITY_EDITOR 
         for (int i = 1; i <= 6; i++)
         {
             KeyCode keyCode = KeyCode.Alpha0 + i;

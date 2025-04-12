@@ -1748,15 +1748,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1900358376714179945, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.001
       objectReference: {fileID: 0}
     - target: {fileID: 1900358376714179945, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1900358376714179945, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 0.001
       objectReference: {fileID: 0}
     - target: {fileID: 1900358376714179945, guid: 156ecd890ac1b44288a74b94f6b81032, type: 3}
       propertyPath: m_AnchorMin.y
