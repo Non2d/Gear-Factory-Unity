@@ -21,6 +21,8 @@ public class CubeBossAnimReceiver : MonoBehaviour
     [SerializeField] private GameObject bossFaceObj;
     [SerializeField] private GameObject bossFacesObj; // 2つ目のボス顔オブジェクト
 
+    [SerializeField] private ParticleSystem DamageEffect;
+
     private UIBossHitPoint UIbossHitPointGauge;
     private CubeBossController bossCtrl;
     private TextMeshPro bossFace;
@@ -54,6 +56,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
         }
 
         explosionEffect.Stop(); // 爆発エフェクトは最初は非表示
+        DamageEffect.Stop();
     }
 
     private void FixedUpdate()
@@ -89,7 +92,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
             // 衝突面の実際の法線を使用して反射ベクトルを計算する
             Vector3 reflectVelocity = Vector3.Reflect(previousVelocity, worldNormal);
             Vector3 muki = reflectVelocity.normalized; // 反射ベクトルの向き
-            float ookisa = 2*previousVelocity.magnitude; // 反射ベクトルの大きさ
+            float ookisa = 2 * previousVelocity.magnitude; // 反射ベクトルの大きさ
             Vector3 elasticCollisionForce = muki * ookisa; // 反射力
 
             // 反射後、垂直方向の成分を取り除く（水平のみの反射とする）
@@ -130,6 +133,34 @@ public class CubeBossAnimReceiver : MonoBehaviour
         {
             Death();
         }
+        else if (damage > 200)
+        {
+            DamageEffect.transform.position = player.transform.position;
+            DamageEffect.Play();
+            if (bossFace != null)
+            {
+                bossFace.text = ":o";
+            }
+            explodeAudio.Play();
+
+            // コルーチンを開始してエフェクトをリセット
+            StartCoroutine(ResetAfterEffect(explodeAudio, DamageEffect));
+        }
+    }
+
+    private IEnumerator ResetAfterEffect(AudioSource audio, ParticleSystem effect)
+    {
+        // AudioSource の再生終了を待機
+        yield return new WaitWhile(() => audio.isPlaying);
+
+        // ボスの顔を戻す
+        if (bossFace != null)
+        {
+            bossFace.text = gf.cubeBossHp > 500 ? ":)" : ":(";
+        }
+
+        // エフェクトを停止
+        effect.Stop();
     }
 
     void Death()
