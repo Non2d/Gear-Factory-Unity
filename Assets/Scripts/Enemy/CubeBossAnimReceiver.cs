@@ -1,10 +1,12 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using UnityEditor.Callbacks;
 
 public class CubeBossAnimReceiver : MonoBehaviour
 {
     [SerializeField] private IngameSceneController sc;
+    [SerializeField] private GameObject player;
     [SerializeField] private GameObject CubeBossBase;
     [SerializeField] private GameObject BossHitPointGauge;
     [SerializeField] private SO_GearFactory gf;
@@ -21,7 +23,14 @@ public class CubeBossAnimReceiver : MonoBehaviour
     private UIBossHitPoint UIbossHitPointGauge;
     private CubeBossController bossCtrl;
     private TextMeshPro bossFace;
-    private float previousSpeed = 0f; // 前回の速度を保存する変数
+    private Rigidbody rb;
+    private float reflectForce;
+    private int sinceCollideFrame = -1; // 衝突からのフレーム数をカウントする変数
+
+    Vector3 worldNormal;
+    Vector3 localNormal;
+    FaceDirection contactFace;
+    float SpeedBeforeCollision = 0.0f; // 衝突前の速さ
 
     void Start()
     {
@@ -31,6 +40,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
         UIbossHitPointGauge.UpdateGauge();
         bossCtrl = CubeBossBase.GetComponent<CubeBossController>();
         bossFace = bossFaceObj.GetComponent<TextMeshPro>();
+        rb = player.GetComponent<Rigidbody>();
 
         if (explodeAudio != null)
         {
@@ -44,11 +54,60 @@ public class CubeBossAnimReceiver : MonoBehaviour
         explosionEffect.Stop(); // 爆発エフェクトは最初は非表示
     }
 
-    void Update()
+    float previousSpeed = 0.0f; // 衝突前の速さ
+    private void FixedUpdate()
     {
+
+        Debug.Log("SPEED: " + rb.velocity.magnitude);
+        if (sinceCollideFrame >= 0)
+        {
+            sinceCollideFrame++;
+        }
+
+        if (sinceCollideFrame == 1)
+        {
+            SpeedBeforeCollision = previousSpeed;
+            if (contactFace == FaceDirection.Down)
+            {
+                sc.GivePlayerDamage(10000);
+            }
+
+            reflectForce = 0.6f;
+            if(contactFace == FaceDirection.Left || contactFace == FaceDirection.Right || contactFace == FaceDirection.Up)
+            {
+                reflectForce = 0.4f;
+            }
+            else if (contactFace == FaceDirection.Forward)
+            {
+                reflectForce = 0.8f;
+            } else if (contactFace == FaceDirection.Back)
+            {
+                reflectForce = 0.2f;
+            }
+
+            // 反射ベクトルを計算して力を加える．OnCollisionEnterで処理しても，結局sinceCollideFrame==2にならないと反映されない
+            Vector3 reflectVelocity = Vector3.Reflect(rb.velocity, Vector3.up);
+            reflectVelocity.y = 0; // 縦方向の成分をゼロにする
+            rb.AddForce(1 * reflectForce * reflectVelocity, ForceMode.Impulse);
+
+            // float SpeedAfterForced = rb.velocity.magnitude;
+            // float vDifferential = Mathf.Max(0, SpeedBeforeCollision - SpeedAfterForced);
+            // float damage = 2 * vDifferential; //param:m=2
+            // Debug.Log("1-damage: "+ damage + "reflectForce: " + reflectForce + " SpeedBeforeCollision: " + SpeedBeforeCollision + " SpeedAfterForced: " + SpeedAfterForced);
+        } else if (sinceCollideFrame == 2)
+        {
+            // 力を加えた後の速さを取得
+            float SpeedAfterForced = rb.velocity.magnitude;
+            float vDifferential = Mathf.Max(0, SpeedBeforeCollision - SpeedAfterForced);
+            float damage = 2 * vDifferential; //param:m=2
+            GetDamage(damage); //param:m=5
+            Debug.Log("2-damage: "+ damage + "reflectForce: " + reflectForce + " SpeedBeforeCollision: " + SpeedBeforeCollision + " SpeedAfterForced: " + SpeedAfterForced);
+        }
+
+        previousSpeed = rb.velocity.magnitude; // 1F前の速さを保存
     }
 
-    public void GetDamage(int damage)
+    public void GetDamage(float damage)
     {
         gf.cubeBossHp -= damage;
         UIbossHitPointGauge.UpdateGauge();
@@ -103,44 +162,22 @@ public class CubeBossAnimReceiver : MonoBehaviour
         {
             foreach (ContactPoint contact in collision.contacts)
             {
-                Vector3 worldNormal = contact.normal;
-                Vector3 localNormal = transform.InverseTransformDirection(worldNormal);
-                FaceDirection contactFace = GetContactFace(localNormal);
+                worldNormal = contact.normal;
+                localNormal = transform.InverseTransformDirection(worldNormal);
+                contactFace = GetContactFace(localNormal);
                 Debug.Log("PlayerがCubeBossの" + contactFace + "面に接触しました: " + collision.gameObject.name);
-                if (contactFace == FaceDirection.Down)
-                {
-                    sc.GivePlayerDamage(10000);
-                }
 
-                // 反射ベクトルを計算
-                Vector3 incomingVelocity = collision.relativeVelocity;
-                Vector3 reflectVelocity = Vector3.Reflect(incomingVelocity, worldNormal);
-
-                // 力を加える
                 Rigidbody rb = collision.rigidbody;
-                float reflectForce = 0.6f;
-
                 if (rb != null)
                 {
-                    if (contactFace == FaceDirection.Back)
-                    {
-                        reflectForce = 0.2f;
-                    }
-                    else if (contactFace == FaceDirection.Forward)
-                    {
-                        reflectForce = 0.9f;
-                    }
-                    int damage = (int)(40 * (previousSpeed - rb.velocity.magnitude) / reflectForce);
-                    GetDamage(damage);
-                    Debug.Log($"Damage: {damage}, speed: {rb.velocity.magnitude}, previousSpeed: {previousSpeed}");
-                    rb.AddForce(reflectForce * reflectVelocity, ForceMode.Impulse);
+                    // ダメージ計算を次の FixedUpdate で実行するためのフレームカウンタをリセット
+                    sinceCollideFrame = 0;
+
+                    // ボスがプレイヤーに気づく
                     bossCtrl.SetState(CubeBossController.EnemyState.Chase);
                 }
-            }
-            
-            if (collision.relativeVelocity.magnitude > 0.01f)
-            {
-                previousSpeed = collision.relativeVelocity.magnitude; // 現在の速度を保存
+
+                SpeedBeforeCollision =  previousSpeed;
             }
         }
     }

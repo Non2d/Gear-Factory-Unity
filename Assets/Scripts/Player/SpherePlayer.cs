@@ -61,6 +61,7 @@ public class SpherePlayer : MonoBehaviour
     [SerializeField] private Material draggedMaterial;
 
     [SerializeField] private Material undraggedMaterial;
+    private bool isTouchingSurface = false;
 
     /// <summary>
     /// 空気抵抗の算出に使う前フレームの速度
@@ -74,7 +75,9 @@ public class SpherePlayer : MonoBehaviour
         if (sc.isGamblingMode)
         {
             ChangeMaterial(undraggedMaterial);
-        } else {
+        }
+        else
+        {
             ChangeMaterial(defaultMaterial);
         }
 
@@ -126,7 +129,7 @@ public class SpherePlayer : MonoBehaviour
         {
             rb.AddForce(Vector3.up * force, ForceMode.Impulse);
             canJump = false; // ジャンプ後にフラグをリセット
-            sc.GivePlayerDamage(dpsMultiplier*dpsJump); //param
+            sc.GivePlayerDamage(dpsMultiplier * dpsJump); //param
         }
 
         // Qキーでオプション画面を表示
@@ -136,7 +139,7 @@ public class SpherePlayer : MonoBehaviour
         }
 
         //後で，ダメージを受けてる時にパーティクルを出すように変更
-        if (isKeyEnabled && !sc.isGamblingMode && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)) 
+        if (isKeyEnabled && !sc.isGamblingMode && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
         || sc.isGamblingMode && Input.GetKey(KeyCode.LeftShift))
         {
             if (!psFire.isPlaying) // パーティクルが再生されていないなら
@@ -213,7 +216,7 @@ public class SpherePlayer : MonoBehaviour
         if (isKeyEnabled && !sc.isGamblingMode && playerForward != Vector3.zero)
         {
             rb.AddForce(playerForward.normalized * force);
-            sc.GivePlayerDamage(dpsMultiplier*dpsMove);
+            sc.GivePlayerDamage(dpsMultiplier * dpsMove);
         }
 
         // Shiftでトルクを加える
@@ -221,7 +224,7 @@ public class SpherePlayer : MonoBehaviour
         {
             Vector3 torqueDirection = Vector3.Cross(Vector3.up, playerForward);
             rb.AddTorque(torqueDirection.normalized * torque, ForceMode.Impulse);
-            sc.GivePlayerDamage(dpsMultiplier*dpsTorque); //param
+            sc.GivePlayerDamage(dpsMultiplier * dpsTorque); //param
         }
 
         float kDragForce = 0.5f;
@@ -230,8 +233,10 @@ public class SpherePlayer : MonoBehaviour
         {
             ChangeMaterial(draggedMaterial);
             kDragForce = 10.0f;
-            sc.GivePlayerDamage(dpsMultiplier*dpsDrag);
-        } else {
+            sc.GivePlayerDamage(dpsMultiplier * dpsDrag);
+        }
+        else
+        {
             ChangeMaterial(undraggedMaterial);
         }
 
@@ -373,5 +378,17 @@ public class SpherePlayer : MonoBehaviour
         {
             Debug.LogError("In inspector, renderer or newMaterial is not assigned.");
         }
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        // 接触しているオブジェクトが何であれ、接触中であることを示す
+        isTouchingSurface = true;
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        // 接触が解除された場合にフラグをリセット
+        isTouchingSurface = false;
     }
 }
