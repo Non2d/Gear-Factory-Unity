@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEditor.Callbacks;
+using System.Reflection.Emit;
 
 public class CubeBossAnimReceiver : MonoBehaviour
 {
@@ -24,13 +25,14 @@ public class CubeBossAnimReceiver : MonoBehaviour
     private CubeBossController bossCtrl;
     private TextMeshPro bossFace;
     private Rigidbody rb;
-    private float reflectForce;
+    private float e;
     private int sinceCollideFrame = -1; // 衝突からのフレーム数をカウントする変数
 
     Vector3 worldNormal;
     Vector3 localNormal;
     FaceDirection contactFace;
-    float SpeedBeforeCollision = 0.0f; // 衝突前の速さ
+    float speedBeforeCollision; // 衝突前の速さ
+    Vector3 previousVelocity; // 1F前の速さを保存する変数
 
     void Start()
     {
@@ -54,11 +56,8 @@ public class CubeBossAnimReceiver : MonoBehaviour
         explosionEffect.Stop(); // 爆発エフェクトは最初は非表示
     }
 
-    float previousSpeed = 0.0f; // 衝突前の速さ
     private void FixedUpdate()
     {
-
-        Debug.Log("SPEED: " + rb.velocity.magnitude);
         if (sinceCollideFrame >= 0)
         {
             sinceCollideFrame++;
@@ -66,45 +65,52 @@ public class CubeBossAnimReceiver : MonoBehaviour
 
         if (sinceCollideFrame == 1)
         {
-            SpeedBeforeCollision = previousSpeed;
+            speedBeforeCollision = previousVelocity.magnitude; // 衝突前の速さを保存
             if (contactFace == FaceDirection.Down)
             {
                 sc.GivePlayerDamage(10000);
             }
 
-            reflectForce = 0.6f;
-            if(contactFace == FaceDirection.Left || contactFace == FaceDirection.Right || contactFace == FaceDirection.Up)
+            // e の値を条件によって変更する例（必要ならコメントを外す）
+            e = 0.9f;
+            if (contactFace == FaceDirection.Left || contactFace == FaceDirection.Right || contactFace == FaceDirection.Up)
             {
-                reflectForce = 0.4f;
+                e = 1.5f;
             }
             else if (contactFace == FaceDirection.Forward)
             {
-                reflectForce = 0.8f;
-            } else if (contactFace == FaceDirection.Back)
+                e = 5.0f;
+            }
+            else if (contactFace == FaceDirection.Back)
             {
-                reflectForce = 0.2f;
+                e = 0.1f;
             }
 
-            // 反射ベクトルを計算して力を加える．OnCollisionEnterで処理しても，結局sinceCollideFrame==2にならないと反映されない
-            Vector3 reflectVelocity = Vector3.Reflect(rb.velocity, Vector3.up);
-            reflectVelocity.y = 0; // 縦方向の成分をゼロにする
-            rb.AddForce(1 * reflectForce * reflectVelocity, ForceMode.Impulse);
+            // 衝突面の実際の法線を使用して反射ベクトルを計算する
+            Vector3 reflectVelocity = Vector3.Reflect(previousVelocity, worldNormal);
+            Vector3 muki = reflectVelocity.normalized; // 反射ベクトルの向き
+            float ookisa = 2*previousVelocity.magnitude; // 反射ベクトルの大きさ
+            Vector3 elasticCollisionForce = muki * ookisa; // 反射力
 
-            // float SpeedAfterForced = rb.velocity.magnitude;
-            // float vDifferential = Mathf.Max(0, SpeedBeforeCollision - SpeedAfterForced);
-            // float damage = 2 * vDifferential; //param:m=2
-            // Debug.Log("1-damage: "+ damage + "reflectForce: " + reflectForce + " SpeedBeforeCollision: " + SpeedBeforeCollision + " SpeedAfterForced: " + SpeedAfterForced);
-        } else if (sinceCollideFrame == 2)
+            // 反射後、垂直方向の成分を取り除く（水平のみの反射とする）
+            elasticCollisionForce.y = 0;
+
+            // 計算した反射ベクトルに反発係数 e をかけ、力を加える
+            rb.AddForce(e * elasticCollisionForce, ForceMode.VelocityChange);
+
+            Debug.Log("ForceAdded: " + e * elasticCollisionForce + "base:" + previousVelocity);
+        }
+        else if (sinceCollideFrame == 2)
         {
             // 力を加えた後の速さを取得
             float SpeedAfterForced = rb.velocity.magnitude;
-            float vDifferential = Mathf.Max(0, SpeedBeforeCollision - SpeedAfterForced);
-            float damage = 2 * vDifferential; //param:m=2
-            GetDamage(damage); //param:m=5
-            Debug.Log("2-damage: "+ damage + "reflectForce: " + reflectForce + " SpeedBeforeCollision: " + SpeedBeforeCollision + " SpeedAfterForced: " + SpeedAfterForced);
+            float vDifferential = Mathf.Max(0, speedBeforeCollision - SpeedAfterForced);
+            float damage = rb.mass * vDifferential;
+            GetDamage(damage);
+            Debug.Log("2-damage: " + damage + "e: " + e + " SpeedBeforeCollision: " + speedBeforeCollision + " SpeedAfterForced: " + SpeedAfterForced);
         }
 
-        previousSpeed = rb.velocity.magnitude; // 1F前の速さを保存
+        previousVelocity = rb.velocity; // 1F前の速さを保存
     }
 
     public void GetDamage(float damage)
@@ -162,22 +168,26 @@ public class CubeBossAnimReceiver : MonoBehaviour
         {
             foreach (ContactPoint contact in collision.contacts)
             {
-                worldNormal = contact.normal;
-                localNormal = transform.InverseTransformDirection(worldNormal);
-                contactFace = GetContactFace(localNormal);
+                // 接触点ごとに実際の衝突面の法線を取得
+                Vector3 worldNormal = contact.normal;
+
+                // ワールド空間の法線をローカル座標系に変換（GetContactFace用）
+                Vector3 localNormal = transform.InverseTransformDirection(worldNormal);
+                FaceDirection contactFace = GetContactFace(localNormal);
                 Debug.Log("PlayerがCubeBossの" + contactFace + "面に接触しました: " + collision.gameObject.name);
 
                 Rigidbody rb = collision.rigidbody;
                 if (rb != null)
                 {
-                    // ダメージ計算を次の FixedUpdate で実行するためのフレームカウンタをリセット
+
+
+
+                    // 次の FixedUpdate でダメージ計算を行うためのフレームカウンタをリセットする
                     sinceCollideFrame = 0;
 
-                    // ボスがプレイヤーに気づく
+                    // ボスがプレイヤーに気づく状態に変更
                     bossCtrl.SetState(CubeBossController.EnemyState.Chase);
                 }
-
-                SpeedBeforeCollision =  previousSpeed;
             }
         }
     }
