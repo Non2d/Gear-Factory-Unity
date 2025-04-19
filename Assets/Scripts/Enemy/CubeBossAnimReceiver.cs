@@ -136,7 +136,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
         {
             Death();
         }
-        else if (damage > 50)
+        else if (damage > 300)
         {
             DamageEffect.transform.position = player.transform.position;
             DamageEffect.Play();
