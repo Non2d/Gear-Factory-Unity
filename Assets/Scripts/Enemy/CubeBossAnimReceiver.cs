@@ -1,8 +1,6 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using UnityEditor.Callbacks;
-using System.Reflection.Emit;
 
 public class CubeBossAnimReceiver : MonoBehaviour
 {
