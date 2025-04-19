@@ -36,6 +36,8 @@ public class CubeBossAnimReceiver : MonoBehaviour
     float speedBeforeCollision; // 衝突前の速さ
     Vector3 previousVelocity; // 1F前の速さを保存する変数
 
+    Vector3 elasticCollisionForce;
+
     void Start()
     {
         transform.position = new Vector3(0, 11, 0);
@@ -78,28 +80,29 @@ public class CubeBossAnimReceiver : MonoBehaviour
             e = 0.9f;
             if (contactFace == FaceDirection.Left || contactFace == FaceDirection.Right || contactFace == FaceDirection.Up)
             {
-                e = 1.5f;
+                e = 5.0f;
             }
             else if (contactFace == FaceDirection.Forward)
             {
-                e = 5.0f;
+                e = 10.0f;
             }
             else if (contactFace == FaceDirection.Back)
             {
-                e = 0.1f;
+                e = 0.0f;
             }
 
             // 衝突面の実際の法線を使用して反射ベクトルを計算する
             Vector3 reflectVelocity = Vector3.Reflect(previousVelocity, worldNormal);
             Vector3 muki = reflectVelocity.normalized; // 反射ベクトルの向き
             float ookisa = 2 * previousVelocity.magnitude; // 反射ベクトルの大きさ
-            Vector3 elasticCollisionForce = muki * ookisa; // 反射力
+            elasticCollisionForce = muki * ookisa; // 反射力
 
             // 反射後、垂直方向の成分を取り除く（水平のみの反射とする）
             elasticCollisionForce.y = 0;
 
             // 計算した反射ベクトルに反発係数 e をかけ、力を加える
-            rb.AddForce(e * elasticCollisionForce, ForceMode.VelocityChange);
+            // rb.AddForce(e * elasticCollisionForce, ForceMode.Force);
+            rb.velocity += e * elasticCollisionForce / rb.mass;
 
             Debug.Log("ForceAdded: " + e * elasticCollisionForce + "base:" + previousVelocity);
         }
@@ -133,7 +136,7 @@ public class CubeBossAnimReceiver : MonoBehaviour
         {
             Death();
         }
-        else if (damage > 100)
+        else if (damage > 50)
         {
             DamageEffect.transform.position = player.transform.position;
             DamageEffect.Play();
